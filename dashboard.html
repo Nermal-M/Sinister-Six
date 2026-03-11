@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - RailKural</title>
+  <link rel="stylesheet" href="/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/multilingual.css">
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark">
+    <a class="navbar-brand" href="/dashboard.html">🚆 RailKural</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ml-auto">
+        <li class="nav-item"><a class="nav-link" href="/dashboard.html" id="dashboardLink">Dashboard</a></li>
+        <li class="nav-item"><a class="nav-link" href="/register-complaint.html" id="registerLink">Register New Complaint</a></li>
+        <li class="nav-item"><a class="nav-link" href="/track-complaint.html" id="trackLink">Track Complaint</a></li>
+        <li class="nav-item"><a class="nav-link" href="/track-train.html" id="trackTrainLink">Track Train</a></li>
+        <li class="nav-item"><a class="nav-link" href="/report-theft-lost.html" id="reportLink">Report Theft</a></li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown">
+            <span class="user-avatar-small">👤</span>
+          </a>
+          <div class="dropdown-menu dropdown-menu-right" id="userDropdownMenu">
+            <a class="dropdown-item" href="/user-profile.html" id="profileLink">My Profile</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="/login-register.html" id="logoutLink">Logout</a>
+          </div>
+        </li>
+        <li class="nav-item language-switcher">
+          <button class="lang-btn" onclick="switchLanguage('en')">EN</button>
+          <button class="lang-btn" onclick="switchLanguage('ta')">TA</button>
+          <button class="lang-btn" onclick="switchLanguage('hi')">HI</button>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="page-header" style="text-align: center;">
+    <div class="container">
+      <h1 id="welcomeTitle">Welcome to RailKural</h1>
+      <p id="welcomeSubtitle">Your one-stop portal for all railway complaints and grievances</p>
+    </div>
+  </div>
+
+  <main class="container py-4">
+    <!-- Your Stats Title -->
+    <div class="row mb-3">
+      <div class="col-12">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <h2 id="yourStatsTitle" style="color: #333; margin-bottom: 0;">Your Stats</h2>
+          <button class="btn btn-sm btn-outline-secondary" onclick="refreshDashboardStats()" style="padding: 0.5rem 1rem; font-size: 0.9rem;">🔄 Refresh Stats</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="row mb-4">
+      <div class="col-md-3 col-sm-6 mb-3">
+        <div class="card text-center">
+          <div class="card-body">
+            <h3 id="stat1Number" style="color: #d32f2f; font-size: 2.5rem; margin: 0;">5</h3>
+            <p id="stat1Label" style="color: #666; margin-top: 0.5rem;">Total Complaints</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6 mb-3">
+        <div class="card text-center">
+          <div class="card-body">
+            <h3 id="stat2Number" style="color: #1976d2; font-size: 2.5rem; margin: 0;">2</h3>
+            <p id="stat2Label" style="color: #666; margin-top: 0.5rem;">In Progress</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6 mb-3">
+        <div class="card text-center">
+          <div class="card-body">
+            <h3 id="stat3Number" style="color: #388e3c; font-size: 2.5rem; margin: 0;">2</h3>
+            <p id="stat3Label" style="color: #666; margin-top: 0.5rem;">Resolved</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6 mb-3">
+        <div class="card text-center">
+          <div class="card-body">
+            <h3 id="stat4Number" style="color: #f57c00; font-size: 2.5rem; margin: 0;">1</h3>
+            <p id="stat4Label" style="color: #666; margin-top: 0.5rem;">Pending</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+      <div class="col-12">
+        <h2 id="quickActionsTitle" style="color: #333; margin-bottom: 1.5rem;">Quick Actions</h2>
+      </div>
+    </div>
+
+    <div class="dashboard-grid">
+      <a href="/register-complaint.html" class="action-card" style="text-decoration: none; color: inherit;">
+        <div class="action-card-icon">📋</div>
+        <h3 id="registerComplaintTitle">Register New Complaint</h3>
+        <p id="registerComplaintDesc">File a new complaint or grievance</p>
+      </a>
+
+      <a href="/track-complaint.html" class="action-card" style="text-decoration: none; color: inherit;">
+        <div class="action-card-icon">🔍</div>
+        <h3 id="trackComplaintTitle">Track Complaint</h3>
+        <p id="trackComplaintDesc">Check status of your complaints</p>
+      </a>
+
+      <a href="/report-theft-lost.html" class="action-card" style="text-decoration: none; color: inherit;">
+        <div class="action-card-icon">⚠️</div>
+        <h3 id="reportTheftTitle">Report Theft/Lost</h3>
+        <p id="reportTheftDesc">Report stolen or lost items</p>
+      </a>
+
+      <div class="action-card" onclick="openChat()" style="cursor: pointer;">
+        <div class="action-card-icon">💬</div>
+        <h3 id="chatSupportTitle">Chat Support</h3>
+        <p id="chatSupportDesc">Get help from our team</p>
+      </div>
+    </div>
+
+    <!-- Recent Complaints -->
+    <div class="row mb-4 mt-4">
+      <div class="col-12">
+        <h2 id="recentComplaintsTitle" style="color: #333; margin-bottom: 1.5rem;">My Recent Complaints</h2>
+        <div class="card">
+          <div class="card-body">
+            <table class="table table-hover" style="margin: 0;">
+              <thead style="background-color: #f8f9fa;">
+                <tr>
+                  <th id="idHeader">Complaint ID</th>
+                  <th id="categoryHeader">Category</th>
+                  <th id="dateHeader">Date</th>
+                  <th id="statusHeader">Status</th>
+                  <th id="actionHeader">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="complaintsTable">
+                <tr><td colspan="5" style="text-align: center; padding: 2rem; color: #999;">Loading your complaints...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FAQ Section -->
+    <div class="row mt-4">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header">
+            <h4 id="faqTitle" style="margin: 0;">Frequently Asked Questions</h4>
+          </div>
+          <div class="card-body">
+            <div style="margin-bottom: 1.5rem;">
+              <h5 id="faq1Question" style="color: #d32f2f; margin-bottom: 0.5rem;">How long does it take to resolve a complaint?</h5>
+              <p id="faq1Answer" style="color: #666; margin: 0;">Most complaints are resolved within 7-15 days depending on the complexity. You can track your complaint status anytime.</p>
+            </div>
+
+            <hr>
+
+            <div style="margin-bottom: 1.5rem;">
+              <h5 id="faq2Question" style="color: #d32f2f; margin-bottom: 0.5rem;">Can I provide additional details after filing?</h5>
+              <p id="faq2Answer" style="color: #666; margin: 0;">Yes, you can contact our support team via chat or call the helpline number mentioned in your complaint confirmation.</p>
+            </div>
+
+            <hr>
+
+            <div style="margin-bottom: 1.5rem;">
+              <h5 id="faq3Question" style="color: #d32f2f; margin-bottom: 0.5rem;">What happens after I report a lost item?</h5>
+              <p id="faq3Answer" style="color: #666; margin: 0;">Our team will conduct a search at the train and relevant stations. You will be notified immediately if your item is found.</p>
+            </div>
+
+            <hr>
+
+            <div>
+              <h5 id="faq4Question" style="color: #d32f2f; margin-bottom: 0.5rem;">Is my information secure?</h5>
+              <p id="faq4Answer" style="color: #666; margin: 0;">Yes, all your personal information is encrypted and stored securely. We follow strict data protection policies.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contact Information -->
+    <div class="row mt-4 mb-4">
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-body text-center">
+            <h5 id="contactTitle" style="color: #d32f2f; margin-bottom: 1rem;">Emergency Helpline</h5>
+            <p style="font-size: 1.3rem; margin: 0;">
+              <strong>1800-123-4567</strong>
+            </p>
+            <p id="availableText" style="color: #666; margin-top: 0.5rem;">Available 24/7</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-body text-center">
+            <h5 id="emailTitle" style="color: #d32f2f; margin-bottom: 1rem;">Email Support</h5>
+            <p style="font-size: 1.1rem; margin: 0;">
+              <strong>complaints@railway.gov.in</strong>
+            </p>
+            <p id="responseTimeText" style="color: #666; margin-top: 0.5rem;">Response within 24 hours</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Chatbot -->
+  <button class="chatbot-toggle" id="chatbotToggle" onclick="toggleChatbot()">💬</button>
+
+  <div class="chatbot-container" id="chatbotContainer" style="display: none;">
+    <div class="chatbot-header">
+      <h5 id="chatTitle">Railway Support</h5>
+      <button class="chatbot-close" onclick="toggleChatbot()">×</button>
+    </div>
+    <div class="chatbot-messages" id="chatbotMessages"></div>
+    <div class="chatbot-input">
+      <input type="text" id="chatInput" placeholder="Type message..." onkeypress="handleChatKeypress(event)">
+      <button onclick="sendChatMessage()">→</button>
+    </div>
+  </div>
+
+  <script src="/js/translations.js"></script>
+  <script src="/js/chatbot-ai.js"></script>
+  <script>
+    // Global variable to track last update
+    let lastDashboardUpdate = 0;
+
+    // Initialize page
+    function initializePage() {
+      console.log('=== INITIALIZING DASHBOARD ===');
+      const lang = localStorage.getItem('language') || 'en';
+      updatePageLanguage(lang);
+      updateLanguageButtonState(lang);
+      
+      // Load complaints immediately
+      console.log('Loading complaints on page load...');
+      loadComplaintsFromDB();
+      
+      // Setup auto-refresh every 30 seconds
+      setInterval(() => {
+        console.log('Auto-refreshing dashboard stats...');
+        loadComplaintsFromDB();
+      }, 30000);
+    }
+
+    // Refresh button handler
+    async function refreshDashboardStats() {
+      console.log('Manual refresh triggered');
+      const btn = event.target;
+      btn.disabled = true;
+      btn.innerHTML = '⏳ Refreshing...';
+      
+      await loadComplaintsFromDB();
+      
+      btn.disabled = false;
+      btn.innerHTML = '🔄 Refresh Stats';
+      
+      // Show brief confirmation
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '✓ Updated';
+      setTimeout(() => {
+        btn.innerHTML = originalText;
+      }, 2000);
+    }
+
+    async function loadComplaintsFromDB() {
+      try {
+        const userEmail = localStorage.getItem('userEmail');
+        console.log('=== LOADING DASHBOARD DATA ===');
+        console.log('Loading complaints for user:', userEmail);
+        
+        if (!userEmail) {
+          console.warn('⚠ No user email found in localStorage - user not logged in');
+          console.log('💡 Stats show default values. Please login to see your actual data.');
+          const tableBody = document.getElementById('complaintsTable');
+          if (tableBody) {
+            tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem; color: #999;">Please <a href="/login-register.html" style="color: #d32f2f;">login</a> to view your complaints.</td></tr>';
+          }
+          return;
+        }
+
+        // Fetch user-specific complaints
+        console.log('📡 Fetching user complaints for:', userEmail);
+        const userResponse = await fetch(`http://127.0.0.1:5000/api/get-user-complaints`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email: userEmail })
+        });
+        
+        console.log('✓ API Response Status:', userResponse.status);
+        
+        if (!userResponse.ok) {
+          const errorText = await userResponse.text();
+          throw new Error(`Failed to fetch user complaints: ${userResponse.status} - ${errorText}`);
+        }
+        
+        const userData = await userResponse.json();
+        console.log('✓ API Data:', userData);
+
+        const tableBody = document.getElementById('complaintsTable');
+        if (!tableBody) {
+          console.error('❌ complaintsTable element not found');
+          return;
+        }
+
+        if (userData.success && userData.complaints && Array.isArray(userData.complaints)) {
+          // Sort by date (newest first)
+          userData.complaints.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+          
+          console.log('✓ Found', userData.complaints.length, 'complaints');
+          tableBody.innerHTML = ''; // Clear loading message
+
+          if (userData.complaints.length === 0) {
+            console.log('ℹ No complaints for this user');
+            tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem; color: #999;">No complaints filed yet. <a href="/register-complaint.html" style="color: #d32f2f;">File one now</a></td></tr>';
+          } else {
+            // Display last 3 complaints (already sorted newest first)
+            const complaintsToShow = userData.complaints.slice(0, 3);
+            console.log('Displaying', complaintsToShow.length, 'complaints in table');
+            
+            complaintsToShow.forEach(complaint => {
+              console.log('  ├─ Adding:', complaint.complaint_id, complaint.category);
+              const row = document.createElement('tr');
+              const date = new Date(complaint.created_at).toLocaleDateString();
+              const statusClass = complaint.status.toLowerCase().replace(' ', '-').replace('_', '-');
+              const description = (complaint.complaint_text || 'No description').replace(/'/g, "\\'");
+              
+              row.innerHTML = `
+                <td>${complaint.complaint_id}</td>
+                <td>${complaint.category || 'N/A'}</td>
+                <td>${date}</td>
+                <td><span class="status-badge status-${statusClass}">${complaint.status}</span></td>
+                <td>
+                  <button class="btn btn-sm btn-info" onclick="showComplaintDescription('${complaint.complaint_id}', '${description}')" style="padding: 0.25rem 0.75rem; font-size: 0.75rem; margin-right: 5px;">Desc</button>
+                  <a href="/track-complaint.html?id=${complaint.complaint_id}" class="btn btn-sm btn-primary" style="padding: 0.25rem 0.75rem; font-size: 0.75rem;">View</a>
+                </td>
+              `;
+              tableBody.appendChild(row);
+            });
+          }
+
+          // IMPORTANT: Update all stats dynamically
+          console.log('=== UPDATING STATS ===');
+          const totalComplaints = userData.complaints.length;
+          
+          // Total complaints
+          const stat1 = document.getElementById('stat1Number');
+          if (stat1) {
+            const oldValue = stat1.textContent;
+            stat1.textContent = totalComplaints;
+            console.log(`✓ stat1Number: ${oldValue} → ${totalComplaints}`);
+          } else {
+            console.error('✗ stat1Number not found');
+          }
+          
+          // Calculate status counts
+          let inProgress = 0, resolved = 0, pending = 0;
+          
+          userData.complaints.forEach((complaint, idx) => {
+            const status = (complaint.status || '').toLowerCase().trim();
+            
+            if (status.includes('progress') || status.includes('in progress') || status.includes('in-progress')) {
+              inProgress++;
+            } else if (status.includes('resolved') || status.includes('closed') || status.includes('completed')) {
+              resolved++;
+            } else {
+              pending++;
+            }
+          });
+          
+          const stat2 = document.getElementById('stat2Number');
+          if (stat2) {
+            const oldValue = stat2.textContent;
+            stat2.textContent = inProgress;
+            console.log(`✓ stat2Number: ${oldValue} → ${inProgress}`);
+          }
+          
+          const stat3 = document.getElementById('stat3Number');
+          if (stat3) {
+            const oldValue = stat3.textContent;
+            stat3.textContent = resolved;
+            console.log(`✓ stat3Number: ${oldValue} → ${resolved}`);
+          }
+          
+          const stat4 = document.getElementById('stat4Number');
+          if (stat4) {
+            const oldValue = stat4.textContent;
+            stat4.textContent = pending;
+            console.log(`✓ stat4Number: ${oldValue} → ${pending}`);
+          }
+          
+          console.log('=== DASHBOARD UPDATE COMPLETE ===');
+          lastDashboardUpdate = Date.now();
+        } else {
+          console.error('❌ Invalid response:', userData);
+          tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem; color: #999;">Unable to load complaints.</td></tr>';
+        }
+      } catch (error) {
+        console.error('❌ Error:', error.message);
+        const tableBody = document.getElementById('complaintsTable');
+        if (tableBody) {
+          tableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 2rem; color: #999;">Error loading data</td></tr>`;
+        }
+      }
+    }
+
+    function showComplaintDescription(complaintId, description) {
+      // Create modal if it doesn't exist
+      let modal = document.getElementById('descriptionModal');
+      if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'descriptionModal';
+        modal.style.cssText = 'display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; padding: 20px;';
+        modal.innerHTML = `
+          <div style="background: white; max-width: 700px; margin: 50px auto; padding: 30px; border-radius: 10px; max-height: 80vh; overflow-y: auto;">
+            <h2 id="descModalTitle" style="margin-top: 0; color: #1e40af; margin-bottom: 20px;">Complaint Description</h2>
+            <div id="descModalContent" style="background: #f9f9f9; padding: 20px; border-radius: 8px; border-left: 4px solid #1e40af; line-height: 1.6; color: #333; white-space: pre-wrap; word-wrap: break-word; font-size: 14px;"></div>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+              <button onclick="closeComplaintDescription()" style="flex: 1; padding: 10px 20px; background: #1e40af; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600;">✕ Close</button>
+            </div>
+          </div>
+        `;
+        document.body.appendChild(modal);
+      }
+      
+      document.getElementById('descModalTitle').textContent = `Details for ${complaintId}`;
+      document.getElementById('descModalContent').textContent = description;
+      modal.style.display = 'block';
+    }
+
+    function closeComplaintDescription() {
+      const modal = document.getElementById('descriptionModal');
+      if (modal) modal.style.display = 'none';
+    }
+
+    function updatePageLanguage(lang) {
+      document.getElementById('welcomeTitle').textContent = t('dashboardTitle', lang);
+      document.getElementById('welcomeSubtitle').textContent = t('welcomeSubtitle', lang);
+      document.getElementById('dashboardLink').textContent = t('dashboard', lang);
+      document.getElementById('logoutLink').textContent = t('logout', lang);
+      document.getElementById('registerLink').textContent = t('registerNewComplaint', lang);
+      document.getElementById('trackLink').textContent = t('trackComplaintNav', lang);
+      document.getElementById('reportLink').textContent = t('reportTheftNav', lang);
+      
+      document.getElementById('yourStatsTitle').textContent = t('yourStats', lang);
+      document.getElementById('stat1Label').textContent = t('totalComplaints', lang);
+      document.getElementById('stat2Label').textContent = t('inProgress', lang);
+      document.getElementById('stat3Label').textContent = t('resolved', lang);
+      document.getElementById('stat4Label').textContent = t('pending', lang);
+      
+      document.getElementById('quickActionsTitle').textContent = t('quickActions', lang);
+      document.getElementById('registerComplaintTitle').textContent = t('newComplaint', lang);
+      document.getElementById('registerComplaintDesc').textContent = t('registerComplaintDesc', lang);
+      document.getElementById('trackComplaintTitle').textContent = t('trackComplaint', lang);
+      document.getElementById('trackComplaintDesc').textContent = t('trackComplaintDesc', lang);
+      document.getElementById('reportTheftTitle').textContent = t('reportTheft', lang);
+      document.getElementById('reportTheftDesc').textContent = t('reportTheftDesc', lang);
+      document.getElementById('chatSupportTitle').textContent = t('chatSupport', lang);
+      document.getElementById('chatSupportDesc').textContent = t('chatSupportDesc', lang);
+      
+      document.getElementById('recentComplaintsTitle').textContent = t('myRecentComplaints', lang);
+      document.getElementById('idHeader').textContent = t('complaintID', lang);
+      document.getElementById('categoryHeader').textContent = t('category', lang);
+      document.getElementById('dateHeader').textContent = t('date', lang);
+      document.getElementById('statusHeader').textContent = t('status', lang);
+      document.getElementById('actionHeader').textContent = t('view', lang);
+      
+      document.getElementById('faqTitle').textContent = t('faqTitle', lang);
+      document.getElementById('faq1Question').textContent = t('faq1Question', lang);
+      document.getElementById('faq1Answer').textContent = t('faq1Answer', lang);
+      document.getElementById('faq2Question').textContent = t('faq2Question', lang);
+      document.getElementById('faq2Answer').textContent = t('faq2Answer', lang);
+      document.getElementById('faq3Question').textContent = t('faq3Question', lang);
+      document.getElementById('faq3Answer').textContent = t('faq3Answer', lang);
+      document.getElementById('faq4Question').textContent = t('faq4Question', lang);
+      document.getElementById('faq4Answer').textContent = t('faq4Answer', lang);
+      
+      document.getElementById('contactTitle').textContent = t('emergencyHelpline', lang);
+      document.getElementById('availableText').textContent = t('available247', lang);
+      document.getElementById('emailTitle').textContent = t('emailSupport', lang);
+      document.getElementById('responseTimeText').textContent = t('responseWithin24', lang);
+      
+      document.getElementById('chatTitle').textContent = t('chatTitle', lang);
+      document.getElementById('viewAllBtn').textContent = t('viewAllComplaints', lang);
+      document.getElementById('footerCopy').textContent = t('copyright', lang);
+    }
+
+    function updateLanguageButtonState(lang) {
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.textContent === lang.toUpperCase()) {
+          btn.classList.add('active');
+        }
+      });
+    }
+
+    function switchLanguage(lang) {
+      localStorage.setItem('language', lang);
+      updatePageLanguage(lang);
+      updateLanguageButtonState(lang);
+      if (railwayChatBot) {
+        railwayChatBot.updateLanguage(lang);
+      }
+    }
+
+    // Chatbot functions
+    function toggleChatbot() {
+      const container = document.getElementById('chatbotContainer');
+      const toggle = document.getElementById('chatbotToggle');
+      
+      if (container.style.display === 'none') {
+        container.style.display = 'flex';
+        toggle.style.display = 'none';
+        if (document.getElementById('chatbotMessages').innerHTML === '') {
+          initializeChatbot();
+        }
+      } else {
+        container.style.display = 'none';
+        toggle.style.display = 'flex';
+      }
+    }
+
+    function openChat() {
+      document.getElementById('chatbotContainer').style.display = 'flex';
+      document.getElementById('chatbotToggle').style.display = 'none';
+      if (document.getElementById('chatbotMessages').innerHTML === '') {
+        initializeChatbot();
+      }
+      document.getElementById('chatInput').focus();
+    }
+
+    function initializeChatbot() {
+      const messages = document.getElementById('chatbotMessages');
+      const lang = localStorage.getItem('language') || 'en';
+      const message = document.createElement('div');
+      message.className = 'message bot';
+      message.innerHTML = `<div class="message-bubble">${t('hello', lang)}</div>`;
+      messages.appendChild(message);
+    }
+
+    function sendChatMessage() {
+      if (railwayChatBot) {
+        const input = document.getElementById('chatInput');
+        const message = input.value.trim();
+        if (message) {
+          railwayChatBot.processUserMessage(message);
+          input.value = '';
+        }
+      }
+    }
+
+    function handleChatKeypress(event) {
+      if (event.key === 'Enter') {
+        sendChatMessage();
+      }
+    }
+
+    // Initialize on page load
+    window.addEventListener('DOMContentLoaded', initializePage);
+
+    // Set active tab on current page
+    function setActiveTab() {
+      const currentPage = window.location.pathname.split('/').pop() || 'dashboard.html';
+      const navLinks = document.querySelectorAll('.nav-link');
+      navLinks.forEach(link => {
+        link.classList.remove('active');
+        const href = link.getAttribute('href').split('/').pop();
+        if (href === currentPage || (currentPage === '' && href === 'dashboard.html')) {
+          link.classList.add('active');
+        }
+      });
+    }
+
+    window.addEventListener('DOMContentLoaded', setActiveTab);
+  </script>
+  
+  <!-- Load notifications manager LAST to ensure DOM is ready -->
+  <script src="/js/notifications.js" defer></script>
+</body>
+</html>
+
+  <!-- Bootstrap JS for dropdown functionality -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

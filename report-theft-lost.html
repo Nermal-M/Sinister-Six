@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Report Theft/Lost Item - RailKural</title>
+  <link rel="stylesheet" href="/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/multilingual.css">
+  <style>
+    .card {
+      overflow: visible !important;
+    }
+    .card-body {
+      overflow: visible !important;
+    }
+    .form-section {
+      overflow: visible !important;
+    }
+    .form-control {
+      position: relative;
+      z-index: 10;
+    }
+    #itemType {
+      width: 100% !important;
+      min-height: 40px;
+      padding: 8px 12px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    #itemType option {
+      overflow: visible;
+      white-space: normal;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark">
+    <a class="navbar-brand" href="/dashboard.html">🚆 RailKural</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ml-auto">
+        <li class="nav-item"><a class="nav-link" href="/dashboard.html" id="dashboardLink">Dashboard</a></li>
+        <li class="nav-item"><a class="nav-link" href="/register-complaint.html" id="registerLink">Register New Complaint</a></li>
+        <li class="nav-item"><a class="nav-link" href="/track-complaint.html" id="trackLink">Track Complaint</a></li>
+        <li class="nav-item"><a class="nav-link" href="/track-train.html" id="trackTrainLink">Track Train</a></li>
+        <li class="nav-item"><a class="nav-link" href="/report-theft-lost.html" id="reportLink">Report Theft</a></li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown">
+            <span class="user-avatar-small">👤</span>
+          </a>
+          <div class="dropdown-menu dropdown-menu-right" id="userDropdownMenu">
+            <a class="dropdown-item" href="/user-profile.html" id="profileLink">My Profile</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="/login-register.html" id="logoutLink">Logout</a>
+          </div>
+        </li>
+        <li class="nav-item language-switcher">
+          <button class="lang-btn" onclick="switchLanguage('en')">EN</button>
+          <button class="lang-btn" onclick="switchLanguage('ta')">TA</button>
+          <button class="lang-btn" onclick="switchLanguage('hi')">HI</button>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="page-header">
+    <div class="container">
+      <h1 id="pageTitle">Report Theft or Lost Item</h1>
+      <p id="pageDesc">File a detailed report about your lost or stolen belongings</p>
+    </div>
+  </div>
+
+  <main class="container py-4">
+    <!-- Tab Navigation -->
+    <div class="row mb-4">
+      <div class="col-md-8 offset-md-2">
+        <ul class="nav nav-tabs" id="theftTabs" style="border-bottom: 2px solid #ddd;">
+          <li class="nav-item">
+            <a class="nav-link active" href="#" onclick="switchTab('report', event)" style="padding: 1rem; font-weight: 600; color: #333 !important; border-bottom: 3px solid transparent; cursor: pointer;" id="reportTab">📝 Report New</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#" onclick="switchTab('track', event)" style="padding: 1rem; font-weight: 600; color: #999 !important; border-bottom: 3px solid transparent; cursor: pointer;" id="trackTab">🔍 Track Status</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-8 offset-md-2">
+        <!-- Report Section -->
+        <div id="reportSection" class="card">
+          <div class="card-body">
+            <form id="theftLostForm">
+              <!-- Alert -->
+              <div class="alert alert-info">
+                <strong id="importantLabel">Important:</strong> <span id="importantText">Please provide as much detail as possible to help us locate your items quickly</span>
+              </div>
+
+              <!-- Personal Information Section -->
+              <div class="form-section">
+                <h5 id="personalInfoTitle" style="color: #d32f2f; margin-bottom: 1.5rem; border-bottom: 2px solid #d32f2f; padding-bottom: 0.5rem;">1. Your Information</h5>
+                
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label id="nameLabel">Full Name</label>
+                      <input type="text" class="form-control" id="fullName" required>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label id="emailLabel">Email Address</label>
+                      <input type="email" class="form-control" id="email" required>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label id="phoneLabel">Phone Number</label>
+                      <input type="tel" class="form-control" id="phone" required>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label id="pnrLabel">PNR Number</label>
+                      <input type="text" class="form-control" id="pnr" required>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Item Details Section -->
+              <div class="form-section">
+                <h5 id="itemDetailsTitle" style="color: #d32f2f; margin-bottom: 1.5rem; margin-top: 2rem; border-bottom: 2px solid #d32f2f; padding-bottom: 0.5rem;">2. Item Details</h5>
+                
+                <div class="form-group">
+                  <label id="itemNameLabel">Item Name/Type</label>
+                  <select class="form-control" id="itemType" required onchange="updateItemCategories()" style="width: 100%; min-width: 200px;">
+                    <option value="select item type">Select Item Type</option>
+                    <option value="baggage">Baggage/Luggage</option>
+                    <option value="laptop">Laptop/Computer</option>
+                    <option value="phone">Mobile Phone</option>
+                    <option value="wallet">Wallet/Purse</option>
+                    <option value="jewelry">Jewelry/Valuables</option>
+                    <option value="documents">Important Documents</option>
+                    <option value="clothing">Clothing/Accessories</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label id="itemDescriptionLabel">Detailed Description</label>
+                  <textarea class="form-control" id="itemDescription" rows="4" placeholder="Describe color, brand, size, distinctive marks, serial numbers (if applicable)..." required></textarea>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label id="estimatedValueLabel">Estimated Value (₹)</label>
+                      <input type="number" class="form-control" id="estimatedValue" min="0" placeholder="0" required>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label id="colorLabel">Color/Distinguishing Features</label>
+                      <input type="text" class="form-control" id="color" placeholder="e.g., Black with red stripe" required>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label id="serialNumberLabel">Serial Number/IMEI (if applicable)</label>
+                  <input type="text" class="form-control" id="serialNumber" placeholder="For electronics">
+                </div>
+              </div>
+
+              <!-- Timeline Section -->
+              <div class="form-section">
+                <h5 id="timelineTitle" style="color: #d32f2f; margin-bottom: 1.5rem; margin-top: 2rem; border-bottom: 2px solid #d32f2f; padding-bottom: 0.5rem;">3. When & Where</h5>
+                
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label id="incidentDateLabel">Date of Incident</label>
+                      <input type="date" class="form-control" id="incidentDate" required>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label id="incidentTimeLabel">Time of Incident (approx)</label>
+                      <input type="time" class="form-control" id="incidentTime" required>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label id="coachDetailLabel">Platform Number</label>
+                  <input type="text" class="form-control" id="coachDetail" placeholder="e.g., Platform 3, Platform 5">
+                </div>
+              </div>
+
+              <!-- Travel Information -->
+              <div class="form-section">
+                <h5 id="travelInfoTitle" style="color: #d32f2f; margin-bottom: 1.5rem; margin-top: 2rem; border-bottom: 2px solid #d32f2f; padding-bottom: 0.5rem;">4. Train Details</h5>
+                
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label id="trainLabel">Train Number</label>
+                      <input type="text" class="form-control" id="trainNumber" required>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label id="trainNameLabel">Train Name</label>
+                      <input type="text" class="form-control" id="trainName" required>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label id="boardingLabel">Boarding Station</label>
+                      <input type="text" class="form-control" id="boarding" required>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label id="destinationLabel">Destination Station</label>
+                      <input type="text" class="form-control" id="destination" required>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Evidence -->
+              <div class="form-section">
+                <h5 id="photoTitle" style="color: #d32f2f; margin-bottom: 1.5rem; margin-top: 2rem; border-bottom: 2px solid #d32f2f; padding-bottom: 0.5rem;">5. Photos/Evidence (Optional)</h5>
+                
+                <div class="form-group">
+                  <label id="photoLabel">Upload Photos of Item <span style="color: #999; font-size: 0.9rem;">(Optional)</span></label>
+                  <input type="file" id="photos" multiple accept="image/*" style="display: none;" onchange="handlePhotoSelect();">
+                  <div style="border: 3px dashed #d32f2f; border-radius: 8px; padding: 2.5rem; text-align: center; cursor: pointer; transition: all 0.3s ease; background: #fff5f5; position: relative;" id="dropZone">
+                    <p id="dragDropText" style="margin: 0; font-size: 1.1rem; font-weight: 600; color: #333;">📷 Click to upload or drag & drop photos</p>
+                    <p style="margin: 0.5rem 0 0 0; font-size: 0.85rem; color: #999;">JPG, PNG, GIF, WebP - Multiple files accepted</p>
+                  </div>
+                  <small style="display: block; color: #666; margin-top: 0.5rem;">Upload clear photos showing the item clearly (optional but recommended)</small>
+                  <div id="photoList" style="margin-top: 1rem;"></div>
+                </div>
+              </div>
+
+              <!-- Submit Buttons -->
+              <div class="form-group" style="margin-top: 2rem;">
+                <label style="display: flex; align-items: center;">
+                  <input type="checkbox" id="acceptTerms" required>
+                  <span style="margin-left: 0.5rem;" id="acceptTermsText">I declare that all information is true and accurate</span>
+                </label>
+              </div>
+
+              <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                <button type="submit" class="btn btn-primary" style="flex: 1;" id="submitBtn">Submit Report</button>
+                <button type="reset" class="btn btn-secondary" style="flex: 1;" id="resetBtn">Clear Form</button>
+              </div>
+            </form>
+          </div>
+        </div>
+        <!-- End Report Section -->
+
+        <!-- Track Section -->
+        <div id="trackSection" style="display: none;">
+          <div class="card">
+            <div class="card-body">
+              <h4 style="margin-bottom: 1.5rem;">My Lost/Theft Reports</h4>
+              <p style="color: #666; margin-bottom: 1rem;">Track the status of your lost or stolen item reports</p>
+              <button class="btn btn-primary" id="refreshTheftBtn" onclick="loadUserTheftReports()" style="margin-bottom: 1rem;">🔄 Refresh Reports</button>
+              
+              <div id="trackingLoadingMessage" style="text-align: center; padding: 2rem; color: #666;">
+                <p>Loading your reports...</p>
+              </div>
+              
+              <div id="theftReportsList" style="margin-top: 1rem;"></div>
+              
+              <div id="noTheftReportsMessage" style="display: none; text-align: center; padding: 2rem; color: #999;">
+                <p>You have not filed any theft/lost item reports yet.</p>
+                <button class="btn btn-primary" onclick="switchTab('report', event)">📝 File a Report</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Theft Report Details Section -->
+          <div id="theftDetailsSection" style="display: none; margin-top: 2rem;">
+            <div class="row">
+              <div class="col-md-8 offset-md-2">
+                <div class="card">
+                  <div class="card-body">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                      <h3 id="theftDetailsTitle">Report Details</h3>
+                      <button type="button" class="btn btn-secondary" onclick="hideTheftDetails()">Close</button>
+                    </div>
+
+                    <div class="theft-details">
+                      <div class="detail-row">
+                        <div>
+                          <div class="detail-label" id="theftReportIdLabel">Report ID</div>
+                          <div class="detail-value" id="theftReportIdDetail"></div>
+                        </div>
+                        <div>
+                          <div class="detail-label" id="theftStatusLabel">Status</div>
+                          <div class="detail-value">
+                            <span class="status-badge" id="theftStatusBadge"></span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="detail-row">
+                        <div>
+                          <div class="detail-label">Item Type</div>
+                          <div class="detail-value" id="theftItemTypeDetail"></div>
+                        </div>
+                        <div>
+                          <div class="detail-label">Estimated Value</div>
+                          <div class="detail-value">₹<span id="theftEstimatedValueDetail"></span></div>
+                        </div>
+                      </div>
+
+                      <div class="detail-row">
+                        <div>
+                          <div class="detail-label">Incident Date</div>
+                          <div class="detail-value" id="theftIncidentDateDetail"></div>
+                        </div>
+                        <div>
+                          <div class="detail-label">Train Number</div>
+                          <div class="detail-value" id="theftTrainNumberDetail"></div>
+                        </div>
+                      </div>
+
+                      <div class="detail-row">
+                        <div style="grid-column: 1 / -1;">
+                          <div class="detail-label">Item Description</div>
+                          <div class="detail-value" style="line-height: 1.6;" id="theftItemDescriptionDetail"></div>
+                        </div>
+                      </div>
+
+                      <div class="detail-row">
+                        <div style="display: none; background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%); border-left: 4px solid #28a745; padding: 15px; border-radius: 6px; box-shadow: 0 2px 8px rgba(40, 167, 69, 0.15);" id="theftResolutionSection">
+                          <div class="detail-label" style="color: #155724; font-weight: 600;">✓ Resolution</div>
+                          <div class="detail-value" style="color: #155724; margin-top: 8px;" id="theftResolutionDetail"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- End Track Section -->
+
+        <!-- Success Modal Popup -->
+        <div id="successMessage" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10000; padding: 20px; align-items: center; justify-content: center;">
+          <div style="background: white; max-width: 650px; padding: 40px; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); text-align: center; animation: slideIn 0.3s ease-in-out;">
+            <div style="font-size: 4rem; margin-bottom: 1rem; animation: scaleIn 0.5s ease-in-out;">✓</div>
+            <h2 id="successTitle" style="color: #10b981; margin-bottom: 0.5rem; font-size: 2rem;">Lost/Theft Complaint Registered Successfully!</h2>
+            <div style="background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%); border-left: 4px solid #28a745; padding: 12px 15px; border-radius: 6px; margin-bottom: 1.5rem; display: inline-block; width: 100%;">
+              <span style="color: #155724; font-weight: 600; font-size: 1rem;">Status: REGISTERED</span>
+            </div>
+            <p id="successText" style="color: #666; font-size: 1.1rem; margin-bottom: 1rem;">Your lost/theft item complaint has been successfully registered in the system. Your Complaint ID is:</p>
+            <div style="background: #f0f0f0; padding: 1.5rem; border-radius: 10px; margin-bottom: 1.5rem; border-left: 4px solid #d32f2f;">
+              <div style="font-size: 0.9rem; color: #999; margin-bottom: 5px;">COMPLAINT ID</div>
+              <h3 id="reportIdDisplay" style="color: #d32f2f; margin: 0; font-size: 1.8rem; font-family: monospace; font-weight: bold; letter-spacing: 2px;"></h3>
+            </div>
+            <div style="background: #f9f9f9; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; border-left: 4px solid #0066cc;">
+              <h4 style="color: #333; margin-top: 0; margin-bottom: 10px; font-size: 1rem;">📋 What Happens Next:</h4>
+              <ul style="text-align: left; color: #666; margin: 0; padding-left: 20px; line-height: 1.8;">
+                <li>Your complaint has been registered and assigned to the Lost/Theft department</li>
+                <li>Our team will actively search for your item in our records</li>
+                <li>You can track the status using your Complaint ID in the Track Status tab</li>
+                <li>Updates will be sent to your registered email and phone number</li>
+              </ul>
+            </div>
+            <p id="trackingInfo" style="color: #666; margin-bottom: 2rem; line-height: 1.6; font-size: 0.95rem;">Save your Complaint ID for future reference. You can use it to track the status anytime.</p>
+            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+              <button onclick="viewTheftTrackingStatus();" class="btn btn-primary" style="padding: 12px 30px; font-size: 1rem; font-weight: 600;">🔍 Track My Complaint</button>
+              <a href="/dashboard.html" class="btn btn-secondary" id="dashboardBtn" style="padding: 12px 30px; font-size: 1rem;">Go to Dashboard</a>
+              <button onclick="closeSuccessPopup()" class="btn btn-outline-secondary" style="padding: 12px 30px; font-size: 1rem;">Close</button>
+            </div>
+          </div>
+        </div>
+        
+        <style>
+          @keyframes slideIn {
+            from {
+              transform: translateY(-50px);
+              opacity: 0;
+            }
+            to {
+              transform: translateY(0);
+              opacity: 1;
+            }
+          }
+          @keyframes scaleIn {
+            from {
+              transform: scale(0);
+              opacity: 0;
+            }
+            to {
+              transform: scale(1);
+              opacity: 1;
+            }
+          }
+        </style>
+      </div>
+    </div>
+  </main>
+
+  <script src="/js/translations.js"></script>
+  <script>
+    // Tab switching function
+    function switchTab(tab, event) {
+      event.preventDefault();
+      
+      // Hide all sections
+      document.getElementById('reportSection').style.display = 'none';
+      document.getElementById('trackSection').style.display = 'none';
+      
+      // Remove active state from tabs
+      document.getElementById('reportTab').style.setProperty('color', '#999', 'important');
+      document.getElementById('reportTab').style.borderBottomColor = 'transparent';
+      document.getElementById('trackTab').style.setProperty('color', '#999', 'important');
+      document.getElementById('trackTab').style.borderBottomColor = 'transparent';
+      
+      // Show selected section and activate tab
+      if (tab === 'report') {
+        document.getElementById('reportSection').style.display = 'block';
+        document.getElementById('reportTab').style.setProperty('color', '#333', 'important');
+        document.getElementById('reportTab').style.borderBottomColor = '#d32f2f';
+      } else if (tab === 'track') {
+        document.getElementById('trackSection').style.display = 'block';
+        document.getElementById('trackTab').style.setProperty('color', '#333', 'important');
+        document.getElementById('trackTab').style.borderBottomColor = '#d32f2f';
+        loadUserTheftReports();
+      }
+    }
+
+    // Load user's theft/lost reports
+    function loadUserTheftReports() {
+      const userEmail = localStorage.getItem('userEmail');
+      
+      console.log('=== LOADING THEFT REPORTS ===');
+      console.log('User Email from localStorage:', userEmail);
+      console.log('User Email type:', typeof userEmail);
+      console.log('User Email length:', userEmail ? userEmail.length : 0);
+      
+      if (!userEmail) {
+        console.log('No user email in localStorage - user not logged in');
+        document.getElementById('trackingLoadingMessage').style.display = 'none';
+        document.getElementById('theftReportsList').style.display = 'none';
+        document.getElementById('noTheftReportsMessage').style.display = 'block';
+        return;
+      }
+
+      const loadingMsg = document.getElementById('trackingLoadingMessage');
+      const reportsList = document.getElementById('theftReportsList');
+      const noReportsMsg = document.getElementById('noTheftReportsMessage');
+      
+      loadingMsg.style.display = 'block';
+      reportsList.innerHTML = '';
+      noReportsMsg.style.display = 'none';
+
+      // Fetch user's theft/lost reports
+      const endpoint = 'http://127.0.0.1:5000/api/get-user-theft-reports';
+      
+      console.log('Fetching from endpoint:', endpoint);
+      console.log('Request body:', JSON.stringify({ email: userEmail }));
+      
+      fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email: userEmail })
+      })
+        .then(response => {
+          console.log('API Response Status:', response.status);
+          console.log('API Response Headers:', response.headers);
+          if (!response.ok) {
+            throw new Error('HTTP Error: ' + response.status);
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log('API Response Data:', data);
+          console.log('data.success:', data.success);
+          console.log('data.reports:', data.reports);
+          console.log('data.reports is array:', Array.isArray(data.reports));
+          console.log('data.reports length:', data.reports ? data.reports.length : 'undefined');
+          
+          loadingMsg.style.display = 'none';
+          
+          if (data.success && data.reports && Array.isArray(data.reports) && data.reports.length > 0) {
+            console.log('✓ Found', data.reports.length, 'theft reports - displaying them');
+            displayTheftReports(data.reports);
+            reportsList.style.display = 'block';
+            noReportsMsg.style.display = 'none';
+          } else {
+            console.log('✗ No theft reports found. Success:', data.success, 'Reports array:', data.reports);
+            reportsList.style.display = 'none';
+            noReportsMsg.style.display = 'block';
+          }
+        })
+        .catch(error => {
+          console.error('✗ Error loading theft reports:', error);
+          console.error('Error message:', error.message);
+          console.error('Error stack:', error.stack);
+          loadingMsg.style.display = 'none';
+          reportsList.style.display = 'none';
+          noReportsMsg.style.display = 'block';
+        });
+    }
+
+    // Display theft reports list
+    function displayTheftReports(reports) {
+      const list = document.getElementById('theftReportsList');
+      list.innerHTML = '';
+
+      // Sort by created_at descending (most recent first)
+      reports.sort((a, b) => {
+        const dateA = new Date(a.created_at || a.incidentDate);
+        const dateB = new Date(b.created_at || b.incidentDate);
+        return dateB - dateA;
+      });
+
+      // Check if the just-submitted complaint is in the list
+      const lastComplaintId = localStorage.getItem('lastTheftComplaintId');
+      let foundLastComplaint = false;
+
+      reports.forEach((report, index) => {
+        const item = document.createElement('div');
+        const isLatest = report.report_id === lastComplaintId;
+        if (isLatest) foundLastComplaint = true;
+        
+        const borderStyle = isLatest ? 'border-left: 4px solid #10b981; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);' : '';
+        item.style.cssText = `background: white; border: 1px solid #ddd; padding: 1.5rem; border-radius: 8px; margin-bottom: 1rem; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.05); ${borderStyle}`;
+        
+        item.onmouseover = () => {
+          item.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
+          item.style.transform = 'translateY(-2px)';
+        };
+        item.onmouseout = () => {
+          item.style.boxShadow = isLatest ? '0 4px 12px rgba(16, 185, 129, 0.2)' : '0 2px 4px rgba(0,0,0,0.05)';
+          item.style.transform = 'translateY(0)';
+        };
+        
+        item.onclick = () => showTheftReportDetail(report);
+
+        const date = new Date(report.created_at || report.incidentDate).toLocaleDateString();
+        const statusColors = getTheftStatusColor(report.status);
+        const latestBadge = isLatest ? '<div style="display: inline-block; background: #10b981; color: white; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; margin-left: 8px;">✓ Just Registered</div>' : '';
+        
+        item.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: start;">
+            <div style="flex: 1;">
+              <div style="font-size: 14px; color: #999; margin-bottom: 5px;">Complaint ID</div>
+              <div style="font-size: 18px; font-weight: bold; color: #333; margin-bottom: 10px; display: flex; align-items: center;">${report.report_id || report.id}${latestBadge}</div>
+              <div style="font-size: 13px; color: #666; margin-bottom: 8px;">
+                <strong>Item:</strong> ${report.itemType || 'N/A'}
+              </div>
+              <div style="font-size: 13px; color: #666; margin-bottom: 8px;">
+                <strong>Train:</strong> ${report.trainNumber || 'N/A'} - ${report.trainName || 'N/A'}
+              </div>
+              <div style="font-size: 13px; color: #999;">
+                <strong>Filed:</strong> ${date}
+              </div>
+            </div>
+            <div style="text-align: right;">
+              <span class="status-badge" style="padding: 8px 12px; font-size: 14px; font-weight: bold; background: ${statusColors.bg}; color: ${statusColors.color}; display: inline-block; border-radius: 20px;">${report.status || 'Registered'}</span>
+              <div style="font-size: 11px; color: #999; margin-top: 10px;">Click to view details</div>
+            </div>
+          </div>
+        `;
+        list.appendChild(item);
+      });
+    }
+
+    // Get status color for theft reports
+    function getTheftStatusColor(status) {
+      const statusLower = (status || 'registered').toLowerCase();
+      if (statusLower.includes('processing') || statusLower.includes('progress') || statusLower.includes('searching')) {
+        return { bg: '#ffe0b2', color: '#FFA500' };
+      } else if (statusLower.includes('found') || statusLower.includes('resolved')) {
+        return { bg: '#c8e6c9', color: '#4CAF50' };
+      } else if (statusLower.includes('registered')) {
+        return { bg: '#e3f2fd', color: '#1976d2' };
+      }
+      return { bg: '#f0f0f0', color: '#666' };
+    }
+
+    // Show theft report details
+    function showTheftReportDetail(report) {
+      const statusColors = getTheftStatusColor(report.status);
+      
+      document.getElementById('theftReportIdDetail').textContent = report.report_id || report.id;
+      document.getElementById('theftStatusBadge').textContent = report.status || 'Registered';
+      document.getElementById('theftStatusBadge').style.background = statusColors.bg;
+      document.getElementById('theftStatusBadge').style.color = statusColors.color;
+      document.getElementById('theftStatusBadge').style.padding = '8px 12px';
+      document.getElementById('theftStatusBadge').style.borderRadius = '20px';
+      document.getElementById('theftStatusBadge').style.display = 'inline-block';
+      
+      document.getElementById('theftItemTypeDetail').textContent = report.itemType || 'N/A';
+      document.getElementById('theftEstimatedValueDetail').textContent = report.estimatedValue || '0';
+      document.getElementById('theftIncidentDateDetail').textContent = new Date(report.incidentDate || report.created_at).toLocaleDateString();
+      document.getElementById('theftTrainNumberDetail').textContent = (report.trainNumber || 'N/A') + ' - ' + (report.trainName || 'N/A');
+      document.getElementById('theftItemDescriptionDetail').textContent = report.itemDescription || 'N/A';
+      
+      if (report.resolution) {
+        document.getElementById('theftResolutionDetail').textContent = report.resolution;
+        document.getElementById('theftResolutionSection').style.display = 'block';
+      } else {
+        document.getElementById('theftResolutionSection').style.display = 'none';
+      }
+      
+      document.getElementById('theftDetailsSection').style.display = 'block';
+      document.getElementById('theftDetailsSection').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Hide theft report details
+    function hideTheftDetails() {
+      document.getElementById('theftDetailsSection').style.display = 'none';
+    }
+
+    // Initialize page
+    function initializePage() {
+      const lang = localStorage.getItem('language') || 'en';
+      updatePageLanguage(lang);
+      updateLanguageButtonState(lang);
+      setupFormHandlers();
+    }
+
+    function updatePageLanguage(lang) {
+      document.getElementById('pageTitle').textContent = t('theftTitle', lang);
+      document.getElementById('pageDesc').textContent = t('pageDesc', lang) || 'File a detailed report about your lost or stolen belongings';
+      document.getElementById('dashboardLink').textContent = t('dashboard', lang);
+      document.getElementById('registerLink').textContent = t('registerNewComplaint', lang);
+      document.getElementById('trackLink').textContent = t('trackComplaintNav', lang);
+      document.getElementById('reportLink').textContent = t('reportTheftNav', lang);
+      document.getElementById('logoutLink').textContent = t('logout', lang);
+      
+      document.getElementById('importantLabel').textContent = t('important', lang) || 'Important:';
+      document.getElementById('importantText').textContent = t('importantText', lang) || 'Please provide as much detail as possible to help us locate your items quickly';
+      
+      document.getElementById('personalInfoTitle').textContent = '1. ' + (t('yourInformation', lang) || 'Your Information');
+      document.getElementById('nameLabel').textContent = t('name', lang);
+      document.getElementById('emailLabel').textContent = t('email', lang);
+      document.getElementById('phoneLabel').textContent = t('phone', lang);
+      document.getElementById('pnrLabel').textContent = 'PNR Number';
+      
+      document.getElementById('itemDetailsTitle').textContent = '2. ' + t('itemDetails', lang);
+      document.getElementById('itemNameLabel').textContent = t('itemName', lang);
+      document.getElementById('itemDescriptionLabel').textContent = t('itemDescription', lang);
+      document.getElementById('estimatedValueLabel').textContent = t('estimatedValue', lang);
+      document.getElementById('colorLabel').textContent = t('color', lang);
+      document.getElementById('serialNumberLabel').textContent = t('serialNumber', lang) || 'Serial Number/IMEI (if applicable)';
+      
+      document.getElementById('timelineTitle').textContent = '3. ' + t('whenWhere', lang);
+      document.getElementById('incidentDateLabel').textContent = t('lostDate', lang);
+      document.getElementById('incidentTimeLabel').textContent = t('lostTime', lang);
+      document.getElementById('coachDetailLabel').textContent = t('coachDetail', lang);
+      
+      document.getElementById('travelInfoTitle').textContent = '4. ' + t('trainDetails', lang);
+      document.getElementById('trainLabel').textContent = t('trainNumber', lang);
+      document.getElementById('trainNameLabel').textContent = t('trainName', lang);
+      document.getElementById('boardingLabel').textContent = t('boarding', lang);
+      document.getElementById('destinationLabel').textContent = t('destination', lang);
+      
+      document.getElementById('photoTitle').textContent = '5. ' + t('photosEvidence', lang);
+      document.getElementById('photoLabel').textContent = t('uploadPhotos', lang);
+      document.getElementById('dragDropText').textContent = t('dragDropFiles', lang);
+      
+      document.getElementById('acceptTermsText').textContent = t('declareTrue', lang);
+      document.getElementById('submitBtn').textContent = t('submitReport', lang) || 'Submit Report';
+      document.getElementById('resetBtn').textContent = t('clearForm', lang);
+      document.getElementById('footerCopy').textContent = t('copyright', lang);
+    }
+
+    function updateLanguageButtonState(lang) {
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.textContent === lang.toUpperCase()) {
+          btn.classList.add('active');
+        }
+      });
+    }
+
+    function switchLanguage(lang) {
+      localStorage.setItem('language', lang);
+      updatePageLanguage(lang);
+      updateLanguageButtonState(lang);
+    }
+
+    function setupFormHandlers() {
+      // File upload handlers
+      console.log('🔧 setupFormHandlers() called');
+      const dropZone = document.getElementById('dropZone');
+      const fileInput = document.getElementById('photos');
+
+      console.log('✓ Setting up form handlers');
+      console.log('dropZone element:', dropZone);
+      console.log('fileInput element:', fileInput);
+
+      if (!dropZone || !fileInput) {
+        console.error('ERROR: dropZone or fileInput not found!');
+        return;
+      }
+
+      // Prevent default drag behaviors on the whole page
+      document.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      }, false);
+
+      document.addEventListener('drop', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      }, false);
+
+      // Now handle the dropzone specifically
+      dropZone.addEventListener('click', (e) => {
+        console.log('✓ dropZone clicked - direct event listener');
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('Triggering file input click');
+        fileInput.click();
+        console.log('File input click triggered');
+      });
+
+      dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropZone.style.background = '#ffebee';
+        dropZone.style.borderColor = '#b71c1c';
+        console.log('✓ Drag over event');
+      }, false);
+
+      dropZone.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropZone.style.background = '#fff5f5';
+        dropZone.style.borderColor = '#d32f2f';
+        console.log('✓ Drag leave event');
+      }, false);
+
+      dropZone.addEventListener('drop', (e) => {
+        console.log('✓ Drop event fired on dropZone');
+        e.preventDefault();
+        e.stopPropagation();
+        dropZone.style.background = '#fff5f5';
+        dropZone.style.borderColor = '#d32f2f';
+        console.log('Dropped items count:', e.dataTransfer.items.length);
+        
+        const files = e.dataTransfer.files;
+        console.log('Files to upload:', files.length);
+        
+        if (files.length > 0) {
+          fileInput.files = files;
+          displayPhotos();
+        } else {
+          console.warn('⚠ No files in drop event');
+        }
+      }, false);
+
+      fileInput.addEventListener('change', (e) => {
+        console.log('✓ File input change event fired - direct event listener');
+        console.log('Files selected:', fileInput.files.length);
+        displayPhotos();
+      });
+
+      console.log('✓ Form handlers setup complete');
+
+      // Form submission
+      document.getElementById('theftLostForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        console.log('✓ Form submit event triggered');
+        const lang = localStorage.getItem('language') || 'en';
+
+        if (!document.getElementById('acceptTerms').checked) {
+          console.warn('Terms not accepted');
+          alert('Please accept the declaration');
+          return;
+        }
+
+        console.log('✓ Terms accepted, collecting form data...');
+
+        // Get user email for tracking
+        const userEmail = document.getElementById('email').value;
+        console.log('User email:', userEmail);
+        localStorage.setItem('userEmail', userEmail);
+
+        // Collect form data
+        const formData = {
+          fullName: document.getElementById('fullName').value,
+          email: userEmail,
+          phone: document.getElementById('phone').value,
+          pnr: document.getElementById('pnr').value,
+          itemType: document.getElementById('itemType').value,
+          itemDescription: document.getElementById('itemDescription').value,
+          estimatedValue: document.getElementById('estimatedValue').value,
+          color: document.getElementById('color').value,
+          serialNumber: document.getElementById('serialNumber').value,
+          incidentDate: document.getElementById('incidentDate').value,
+          incidentTime: document.getElementById('incidentTime').value,
+          platformNumber: document.getElementById('coachDetail').value,
+          trainNumber: document.getElementById('trainNumber').value,
+          trainName: document.getElementById('trainName').value,
+          boarding: document.getElementById('boarding').value,
+          destination: document.getElementById('destination').value,
+          category: 'Lost/Theft',
+          status: 'Registered'
+        };
+
+        console.log('Form data collected:', formData);
+
+        try {
+          console.log('Sending request to API...');
+          // Submit to API
+          const response = await fetch('http://127.0.0.1:5000/api/theft-lost', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+          });
+
+          console.log('Response status:', response.status);
+          const data = await response.json();
+          console.log('Response data:', data);
+
+          if (response.ok && data.success) {
+            // Get report ID from response
+            const reportId = data.report_id;
+            console.log('✓ Complaint registered successfully:', reportId);
+            
+            // Store the complaint ID in localStorage for tracking
+            localStorage.setItem('lastTheftComplaintId', reportId);
+            
+            // Show success modal
+            document.getElementById('reportIdDisplay').textContent = reportId;
+            document.getElementById('successMessage').style.display = 'flex';
+            document.getElementById('successMessage').scrollIntoView({ behavior: 'smooth' });
+
+            console.log('✓ Success modal displayed');
+          } else {
+            console.error('API Error:', data);
+            alert('Error submitting report: ' + (data.message || data.error || 'Unknown error'));
+          }
+        } catch (error) {
+          console.error('Fetch Error:', error);
+          alert('Connection error: ' + error.message + '\n\nMake sure:\n1. API server is running on http://127.0.0.1:5000\n2. MongoDB is connected\n\nCheck browser console (F12) for details.');
+        }
+      });
+    }
+
+    function closeSuccessPopup() {
+      document.getElementById('successMessage').style.display = 'none';
+      document.getElementById('theftLostForm').reset();
+      document.getElementById('photoList').innerHTML = '';
+    }
+
+    function viewTheftTrackingStatus() {
+      closeSuccessPopup();
+      switchTab('track', { preventDefault: () => {} });
+      setTimeout(() => {
+        document.getElementById('trackSection').scrollIntoView({ behavior: 'smooth' });
+      }, 300);
+    }
+
+    function handlePhotoSelect() {
+      const fileInput = document.getElementById('photos');
+      console.log('🎯 handlePhotoSelect() called');
+      console.log('Files selected:', fileInput.files.length);
+      
+      if (fileInput.files.length > 0) {
+        console.log('✓ Files detected, calling displayPhotos()');
+        displayPhotos();
+      } else {
+        console.warn('⚠ No files selected');
+      }
+    }
+
+    function displayPhotos() {
+      const files = document.getElementById('photos').files;
+      const photoList = document.getElementById('photoList');
+      photoList.innerHTML = '';
+
+      console.log('📷 Displaying photos. Total files:', files.length);
+
+      if (files.length === 0) {
+        console.log('No photos selected');
+        return;
+      }
+
+      Array.from(files).forEach((file, index) => {
+        console.log(`Photo ${index + 1}: ${file.name} (${(file.size / 1024).toFixed(2)} KB)`);
+        const photoItem = document.createElement('div');
+        photoItem.style.cssText = 'background: #f5f5f5; padding: 0.75rem; border-radius: 4px; margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid #d32f2f;';
+        photoItem.innerHTML = `
+          <span style="font-size: 0.9rem;">✓ ${file.name} (${(file.size / 1024).toFixed(2)} KB)</span>
+          <button type="button" class="btn btn-sm btn-danger" onclick="removePhoto(${index})" style="padding: 0.25rem 0.75rem; font-size: 0.75rem;">Remove</button>
+        `;
+        photoList.appendChild(photoItem);
+      });
+      
+      console.log('✓ All photos displayed');
+    }
+
+    function removePhoto(index) {
+      const fileInput = document.getElementById('photos');
+      const dataTransfer = new DataTransfer();
+      
+      Array.from(fileInput.files).forEach((file, i) => {
+        if (i !== index) dataTransfer.items.add(file);
+      });
+      
+      fileInput.files = dataTransfer.files;
+      displayPhotos();
+    }
+
+    function updateIncidentType() {
+      const type = document.querySelector('input[name="incidentType"]:checked').value;
+      const pageTitle = document.getElementById('pageTitle');
+      const lang = localStorage.getItem('language') || 'en';
+      
+      if (type === 'theft') {
+        pageTitle.textContent = 'Report Theft';
+      } else {
+        pageTitle.textContent = t('theftTitle', lang);
+      }
+    }
+
+    function updateItemCategories() {
+      // Item categories are already set in the select
+    }
+
+    // Initialize on page load
+    window.addEventListener('DOMContentLoaded', initializePage);
+    
+    // Set active tab on current page
+    window.addEventListener('DOMContentLoaded', function() {
+      const currentPage = window.location.pathname.split('/').pop() || 'dashboard.html';
+      const navLinks = document.querySelectorAll('.nav-link');
+      navLinks.forEach(link => {
+        link.classList.remove('active');
+        const href = link.getAttribute('href').split('/').pop();
+        if (href === currentPage || (currentPage === '' && href === 'dashboard.html')) {
+          link.classList.add('active');
+        }
+      });
+    });
+  </script>
+
+  <footer style="background: #f5f5f5; padding: 2rem 0; margin-top: 3rem; text-align: center; color: #666; font-size: 0.9rem;">
+    <p id="footerCopy">© 2025 RailKural. All rights reserved.</p>
+  </footer>
+</body>
+</html>
+
+  <!-- Bootstrap JS for dropdown functionality -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

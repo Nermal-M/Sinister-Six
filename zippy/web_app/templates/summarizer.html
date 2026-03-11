@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Summarizer - Bag Tracking System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">🎥 Bag Tracking System</div>
+            <ul class="nav-menu">
+                <li><a href="/" class="nav-link">Detection & Tracking</a></li>
+                <li><a href="/summarizer" class="nav-link active">Video Summarizer</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="main-content">
+            <h1>Video Summarizer</h1>
+            <p class="subtitle">Analyze and summarize tracked video contents</p>
+
+            <div class="steps-container">
+                <!-- Step 1: Upload Tracked Video -->
+                <div class="step">
+                    <div class="step-header">
+                        <span class="step-number">1</span>
+                        <h2>Upload Tracked Video</h2>
+                    </div>
+                    <div class="step-content">
+                        <div class="upload-area" id="summarizeUploadArea">
+                            <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M12 2v20M2 12h20M7 7l5-5 5 5M7 17l5 5 5-5"></path>
+                            </svg>
+                            <p>Drag & drop your tracked video here or click to select</p>
+                            <p class="upload-hint">Supported formats: MP4, AVI, MOV, MKV (Max 500MB)</p>
+                            <input type="file" id="summarizeVideoInput" accept="video/*" style="display: none;">
+                        </div>
+                        <div id="summarizeUploadStatus" style="display: none;">
+                            <div class="status-message" id="summarizeStatusMessage"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Analyze Video -->
+                <div class="step">
+                    <div class="step-header">
+                        <span class="step-number">2</span>
+                        <h2>Analyze Video</h2>
+                    </div>
+                    <div class="step-content" id="analyzeStep" style="display: none;">
+                        <button class="btn btn-primary" id="analyzeBtn">Analyze Video</button>
+                        <div id="analyzeProgress" style="display: none;" class="progress-container">
+                            <div class="progress-bar">
+                                <div id="analyzeProgressFill" class="progress-fill"></div>
+                            </div>
+                            <p>Analyzing video...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Summary Report -->
+                <div class="step">
+                    <div class="step-header">
+                        <span class="step-number">3</span>
+                        <h2>Summary Report</h2>
+                    </div>
+                    <div class="step-content" id="summaryStep" style="display: none;">
+                        <div id="summaryReport" class="summary-report">
+                            <div id="summaryText"></div>
+                            <div id="summaryStats" class="summary-stats"></div>
+                        </div>
+                        <button class="btn btn-primary" id="downloadReportBtn" style="display: none;">Download Report</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Info Section -->
+            <div class="info-section">
+                <h3>How This Works</h3>
+                <ul>
+                    <li>Upload your tracked video</li>
+                    <li>System analyzes video trajectory and movement patterns</li>
+                    <li>Professional narrative report is created</li>
+                    <li>Download comprehensive analysis report</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; Sinister Six </p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/summarizer.js') }}"></script>
+</body>
+</html>

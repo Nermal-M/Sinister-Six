@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Profile - RailKural</title>
+  <link rel="stylesheet" href="/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/multilingual.css">
+  <style>
+    .profile-container {
+      max-width: 600px;
+      margin: 2rem auto;
+      background: white;
+      border-radius: 10px;
+      padding: 2rem;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .profile-header {
+      text-align: center;
+      margin-bottom: 2rem;
+      border-bottom: 2px solid #eee;
+      padding-bottom: 1.5rem;
+    }
+
+    .profile-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 2.2rem;
+      margin: 0 auto 1rem;
+    }
+
+    .profile-name {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #333;
+      margin: 0;
+    }
+
+    .profile-email {
+      color: #666;
+      font-size: 0.9rem;
+      margin: 0.5rem 0 0 0;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 1rem;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #d32f2f;
+      box-shadow: 0 0 5px rgba(211, 47, 47, 0.3);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 1rem;
+      margin-top: 2rem;
+      padding-top: 2rem;
+      border-top: 2px solid #eee;
+    }
+
+    .button-group button {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      border: none;
+      border-radius: 5px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    .btn-save {
+      background: #27ae60;
+      color: white;
+    }
+
+    .btn-save:hover {
+      background: #229954;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(39, 174, 96, 0.3);
+    }
+
+    .btn-cancel {
+      background: #95a5a6;
+      color: white;
+    }
+
+    .btn-cancel:hover {
+      background: #7f8c8d;
+      transform: translateY(-2px);
+    }
+
+    .read-only {
+      background: #f5f5f5;
+      border: none !important;
+      cursor: not-allowed;
+    }
+
+    .edit-toggle-btn {
+      background: #3498db;
+      color: white;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .edit-toggle-btn:hover {
+      background: #2980b9;
+      transform: translateY(-2px);
+    }
+
+    .success-message {
+      display: none;
+      background: #d4edda;
+      border: 1px solid #c3e6cb;
+      color: #155724;
+      padding: 1rem;
+      border-radius: 5px;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    .error-message {
+      display: none;
+      background: #f8d7da;
+      border: 1px solid #f5c6cb;
+      color: #721c24;
+      padding: 1rem;
+      border-radius: 5px;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark">
+    <a class="navbar-brand" href="/dashboard.html">🚆 RailKural</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ml-auto">
+        <li class="nav-item"><a class="nav-link" href="/dashboard.html" id="dashboardLink">Dashboard</a></li>
+        <li class="nav-item"><a class="nav-link" href="/register-complaint.html" id="registerLink">Register New Complaint</a></li>
+        <li class="nav-item"><a class="nav-link" href="/track-complaint.html" id="trackLink">Track Complaint</a></li>
+        <li class="nav-item"><a class="nav-link" href="/track-train.html" id="trackTrainLink">Track Train</a></li>
+        <li class="nav-item"><a class="nav-link" href="/report-theft-lost.html" id="reportLink">Report Theft</a></li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown">
+            <span class="user-avatar-small">👤</span>
+          </a>
+          <div class="dropdown-menu dropdown-menu-right" id="userDropdownMenu">
+            <a class="dropdown-item" href="/user-profile.html" id="profileLink">My Profile</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="/login-register.html" id="logoutLink">Logout</a>
+          </div>
+        </li>
+        <li class="nav-item language-switcher">
+          <button class="lang-btn" onclick="switchLanguage('en')">EN</button>
+          <button class="lang-btn" onclick="switchLanguage('ta')">TA</button>
+          <button class="lang-btn" onclick="switchLanguage('hi')">HI</button>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="container py-4">
+    <div class="profile-container">
+      <!-- Success Message -->
+      <div class="success-message" id="successMessage">
+        ✅ Profile updated successfully!
+      </div>
+
+      <!-- Error Message -->
+      <div class="error-message" id="errorMessage"></div>
+
+      <!-- Profile Header -->
+      <div class="profile-header">
+        <div class="profile-avatar" id="profileAvatar">👤</div>
+        <h1 class="profile-name" id="profileName">Your Name</h1>
+        <p class="profile-email" id="profileEmail">your.email@example.com</p>
+      </div>
+
+      <!-- Profile Form -->
+      <form id="profileForm">
+        <div class="form-group">
+          <label id="firstNameLabel" for="firstName">First Name</label>
+          <input type="text" id="firstName" name="firstName" class="read-only" readonly>
+        </div>
+
+        <div class="form-group">
+          <label id="lastNameLabel" for="lastName">Last Name</label>
+          <input type="text" id="lastName" name="lastName" class="read-only" readonly>
+        </div>
+
+        <div class="form-group">
+          <label id="emailLabel" for="email">Email Address</label>
+          <input type="email" id="email" name="email" class="read-only" readonly>
+        </div>
+
+        <div class="form-group">
+          <label id="phoneLabel" for="phone">Phone Number</label>
+          <input type="tel" id="phone" name="phone" class="read-only" readonly>
+        </div>
+
+        <div class="form-group">
+          <label id="addressLabel" for="address">Address</label>
+          <input type="text" id="address" name="address" class="read-only" readonly>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label id="cityLabel" for="city">City</label>
+            <input type="text" id="city" name="city" class="read-only" readonly>
+          </div>
+          <div class="form-group">
+            <label id="stateLabel" for="state">State</label>
+            <input type="text" id="state" name="state" class="read-only" readonly>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label id="pincodeLabel" for="pincode">Pincode</label>
+          <input type="text" id="pincode" name="pincode" class="read-only" readonly>
+        </div>
+
+        <div class="button-group">
+          <button type="button" class="edit-toggle-btn" id="editBtn" onclick="enableEditMode()">✏️ Edit Profile</button>
+          <button type="button" class="btn-cancel" id="cancelBtn" onclick="disableEditMode()" style="display: none;">Cancel</button>
+          <button type="submit" class="btn-save" id="saveBtn" style="display: none;">💾 Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <script src="/js/translations.js"></script>
+  <script>
+    // Initialize page
+    function initializePage() {
+      const lang = localStorage.getItem('language') || 'en';
+      updatePageLanguage(lang);
+      updateLanguageButtonState(lang);
+      loadUserProfile();
+    }
+
+    function loadUserProfile() {
+      const userEmail = localStorage.getItem('userEmail');
+      const userName = localStorage.getItem('userName') || 'User';
+      
+      if (!userEmail) {
+        alert('Please login first');
+        window.location.href = '/login-register.html';
+        return;
+      }
+
+      // Display user info
+      document.getElementById('profileName').textContent = userName;
+      document.getElementById('profileEmail').textContent = userEmail;
+      document.getElementById('email').value = userEmail;
+
+      // Try to fetch user details from API
+      fetch(`http://127.0.0.1:5000/api/users/${encodeURIComponent(userEmail)}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.success && data.user) {
+            populateUserForm(data.user);
+          }
+        })
+        .catch(error => {
+          console.error('Error loading user profile:', error);
+          // Use default values if API fails
+          setDefaultUserForm();
+        });
+    }
+
+    function populateUserForm(user) {
+      document.getElementById('firstName').value = user.first_name || '';
+      document.getElementById('lastName').value = user.last_name || '';
+      document.getElementById('email').value = user.email || '';
+      document.getElementById('phone').value = user.phone || '';
+      document.getElementById('address').value = user.address || '';
+      document.getElementById('city').value = user.city || '';
+      document.getElementById('state').value = user.state || '';
+      document.getElementById('pincode').value = user.pincode || '';
+
+      document.getElementById('profileName').textContent = `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'User';
+    }
+
+    function setDefaultUserForm() {
+      const userEmail = localStorage.getItem('userEmail') || '';
+      const userName = localStorage.getItem('userName') || '';
+      
+      document.getElementById('email').value = userEmail;
+      document.getElementById('firstName').value = userName.split(' ')[0] || '';
+      document.getElementById('lastName').value = userName.split(' ').slice(1).join(' ') || '';
+    }
+
+    function enableEditMode() {
+      const inputs = document.querySelectorAll('input');
+      inputs.forEach(input => {
+        input.classList.remove('read-only');
+        input.removeAttribute('readonly');
+      });
+      
+      document.getElementById('editBtn').style.display = 'none';
+      document.getElementById('cancelBtn').style.display = 'inline-block';
+      document.getElementById('saveBtn').style.display = 'inline-block';
+    }
+
+    function disableEditMode() {
+      const inputs = document.querySelectorAll('input');
+      inputs.forEach(input => {
+        input.classList.add('read-only');
+        input.setAttribute('readonly', '');
+      });
+      
+      document.getElementById('editBtn').style.display = 'inline-block';
+      document.getElementById('cancelBtn').style.display = 'none';
+      document.getElementById('saveBtn').style.display = 'none';
+      
+      loadUserProfile(); // Reload to discard changes
+    }
+
+    document.getElementById('profileForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      saveProfile();
+    });
+
+    function saveProfile() {
+      const userEmail = localStorage.getItem('userEmail');
+      
+      const profileData = {
+        email: userEmail,
+        first_name: document.getElementById('firstName').value,
+        last_name: document.getElementById('lastName').value,
+        phone: document.getElementById('phone').value,
+        address: document.getElementById('address').value,
+        city: document.getElementById('city').value,
+        state: document.getElementById('state').value,
+        pincode: document.getElementById('pincode').value
+      };
+
+      fetch(`http://127.0.0.1:5000/api/users/${encodeURIComponent(userEmail)}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(profileData)
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          showSuccessMessage();
+          disableEditMode();
+          loadUserProfile();
+        } else {
+          showErrorMessage(data.message || 'Failed to save profile');
+        }
+      })
+      .catch(error => {
+        console.error('Error saving profile:', error);
+        showErrorMessage('Error saving profile: ' + error.message);
+      });
+    }
+
+    function showSuccessMessage() {
+      const msg = document.getElementById('successMessage');
+      msg.style.display = 'block';
+      setTimeout(() => {
+        msg.style.display = 'none';
+      }, 3000);
+    }
+
+    function showErrorMessage(message) {
+      const msg = document.getElementById('errorMessage');
+      msg.textContent = '❌ ' + message;
+      msg.style.display = 'block';
+      setTimeout(() => {
+        msg.style.display = 'none';
+      }, 3000);
+    }
+
+    function updatePageLanguage(lang) {
+      document.getElementById('dashboardLink').textContent = t('dashboard', lang);
+      document.getElementById('registerLink').textContent = t('registerNewComplaint', lang);
+      document.getElementById('trackLink').textContent = t('trackComplaintNav', lang);
+      document.getElementById('reportLink').textContent = t('reportTheftNav', lang);
+      document.getElementById('profileLink').textContent = t('myProfile', lang);
+      document.getElementById('logoutLink').textContent = t('logout', lang);
+      
+      document.getElementById('firstNameLabel').textContent = t('firstName', lang);
+      document.getElementById('lastNameLabel').textContent = t('lastName', lang);
+      document.getElementById('emailLabel').textContent = t('emailAddress', lang);
+      document.getElementById('phoneLabel').textContent = t('phoneNumber', lang);
+      document.getElementById('addressLabel').textContent = t('address', lang);
+      document.getElementById('cityLabel').textContent = t('city', lang);
+      document.getElementById('stateLabel').textContent = t('state', lang);
+      document.getElementById('editBtn').textContent = '✏️ ' + t('editProfile', lang);
+      document.getElementById('saveBtn').textContent = '💾 ' + t('saveChanges', lang);
+      document.getElementById('pincodeLabel').textContent = 'Pincode';
+    }
+
+    function updateLanguageButtonState(lang) {
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.textContent === lang.toUpperCase()) {
+          btn.classList.add('active');
+        }
+      });
+    }
+
+    function switchLanguage(lang) {
+      localStorage.setItem('language', lang);
+      updatePageLanguage(lang);
+      updateLanguageButtonState(lang);
+    }
+
+    // Initialize on page load
+    window.addEventListener('DOMContentLoaded', initializePage);
+  </script>
+</body>
+</html>
+
+  <!-- Bootstrap JS for dropdown functionality -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

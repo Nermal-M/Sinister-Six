@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Railway Complaint System - Portal</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 15px 0;
+            margin-bottom: 40px;
+        }
+
+        .navbar h1 {
+            color: #667eea;
+            font-size: 28px;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .navbar p {
+            color: #666;
+            font-size: 14px;
+            margin: 5px 0 0 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .hero {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            margin-bottom: 40px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .hero h2 {
+            color: #333;
+            font-size: 32px;
+            margin-bottom: 15px;
+        }
+
+        .hero p {
+            color: #666;
+            font-size: 16px;
+            margin-bottom: 0;
+        }
+
+        .status-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .status-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border-left: 4px solid #667eea;
+        }
+
+        .status-item .label {
+            color: #666;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .status-item .value {
+            color: #28a745;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .sections {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .section {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .section-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .section-content {
+            padding: 20px;
+        }
+
+        .link-list {
+            list-style: none;
+        }
+
+        .link-item {
+            margin-bottom: 12px;
+        }
+
+        .link-item a {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #667eea;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .link-item a:hover {
+            background: #e9ecef;
+            border-left-color: #667eea;
+            padding-left: 20px;
+            color: #764ba2;
+        }
+
+        .link-item a .icon {
+            font-size: 20px;
+            margin-right: 12px;
+            min-width: 30px;
+        }
+
+        .link-item a .title {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .link-item a .main {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .link-item a .desc {
+            font-size: 12px;
+            color: #999;
+            margin-top: 3px;
+            font-weight: 400;
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #0066cc;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .info-box strong {
+            color: #0066cc;
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #e9ecef;
+            color: #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #dee2e6;
+        }
+
+        .quick-access {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 40px;
+        }
+
+        .quick-access h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+
+        .quick-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .quick-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            text-align: center;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .quick-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+            color: white;
+            text-decoration: none;
+        }
+
+        .quick-btn .icon {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .footer {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            margin-top: 40px;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #28a745;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+
+        .badge.new {
+            background: #ffc107;
+            color: #333;
+        }
+
+        @media (max-width: 768px) {
+            .sections {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                grid-template-columns: 1fr;
+            }
+
+            .quick-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .hero h2 {
+                font-size: 24px;
+            }
+
+            .navbar h1 {
+                font-size: 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <div class="navbar">
+        <div class="container">
+            <h1>🚂 Railway Complaint System</h1>
+            <p>Your comprehensive platform for reporting and tracking railway complaints</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Hero Section -->
+        <div class="hero">
+            <h2>Welcome to Your Portal</h2>
+            <p>Access all features and tools from one central location</p>
+            <div class="status-bar">
+                <div class="status-item">
+                    <div class="label">API Server</div>
+                    <div class="value">✓ Ready</div>
+                </div>
+                <div class="status-item">
+                    <div class="label">Database</div>
+                    <div class="value">✓ Connected</div>
+                </div>
+                <div class="status-item">
+                    <div class="label">AI Models</div>
+                    <div class="value">✓ Loaded</div>
+                </div>
+                <div class="status-item">
+                    <div class="label">System</div>
+                    <div class="value">✓ Online</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Access -->
+        <div class="quick-access">
+            <h3>⚡ Quick Access</h3>
+            <div class="quick-grid">
+                <a href="login-register.html" class="quick-btn">
+                    <span class="icon">🔐</span>
+                    <span>Login</span>
+                </a>
+                <a href="passenger-register.html" class="quick-btn">
+                    <span class="icon">👤</span>
+                    <span>Register</span>
+                </a>
+                <a href="register-complaint.html" class="quick-btn">
+                    <span class="icon">📝</span>
+                    <span>File Complaint</span>
+                </a>
+                <a href="track-complaint.html" class="quick-btn">
+                    <span class="icon">🔎</span>
+                    <span>Track</span>
+                </a>
+                <a href="dashboard.html" class="quick-btn">
+                    <span class="icon">📊</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="connectivity-test.html" class="quick-btn">
+                    <span class="icon">🔧</span>
+                    <span>Test System</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Sections -->
+        <div class="sections">
+            <!-- User Pages -->
+            <div class="section">
+                <div class="section-header">
+                    👥 User Pages
+                </div>
+                <div class="section-content">
+                    <div class="info-box">
+                        <strong>For Passengers:</strong> Access your account, register complaints, and track their status.
+                    </div>
+                    <ul class="link-list">
+                        <li class="link-item">
+                            <a href="login-register.html">
+                                <span class="icon">🔐</span>
+                                <span class="title">
+                                    <span class="main">Login & Register</span>
+                                    <span class="desc">Sign in to your account or create new</span>
+                                </span>
+                            </a>
+                        </li>
+                        <li class="link-item">
+                            <a href="passenger-register.html">
+                                <span class="icon">👤</span>
+                                <span class="title">
+                                    <span class="main">New Passenger Registration</span>
+                                    <span class="desc">Create a new passenger account</span>
+                                </span>
+                            </a>
+                        </li>
+                        <li class="link-item">
+                            <a href="register-complaint.html">
+                                <span class="icon">📝</span>
+                                <span class="title">
+                                    <span class="main">Register Complaint</span>
+                                    <span class="desc">File a new complaint with AI categorization</span>
+                                </span>
+                            </a>
+                        </li>
+                        <li class="link-item">
+                            <a href="track-complaint.html">
+                                <span class="icon">🔎</span>
+                                <span class="title">
+                                    <span class="main">Track Complaint</span>
+                                    <span class="desc">Check status of your complaints</span>
+                                </span>
+                            </a>
+                        </li>
+                        <li class="link-item">
+                            <a href="report-theft-lost.html">
+                                <span class="icon">⚠️</span>
+                                <span class="title">
+                                    <span class="main">Report Theft/Lost Items</span>
+                                    <span class="desc">Report missing or stolen items</span>
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Dashboard Pages -->
+            <div class="section">
+                <div class="section-header">
+                    📊 Dashboards
+                </div>
+                <div class="section-content">
+                    <div class="info-box">
+                        <strong>Analytics & Management:</strong> View statistics, complaints, and manage operations.
+                    </div>
+                    <ul class="link-list">
+                        <li class="link-item">
+                            <a href="dashboard.html">
+                                <span class="icon">📊</span>
+                                <span class="title">
+                                    <span class="main">Passenger Dashboard</span>
+                                    <span class="desc">Your personal complaint dashboard</span>
+                                </span>
+                            </a>
+                        </li>
+                        <li class="link-item">
+                            <a href="department-dashboard.html">
+                                <span class="icon">🏢</span>
+                                <span class="title">
+                                    <span class="main">Department Dashboard</span>
+                                    <span class="desc">Staff/Admin complaint management</span>
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Testing & System -->
+            <div class="section">
+                <div class="section-header">
+                    🔧 System Tools
+                </div>
+                <div class="section-content">
+                    <div class="info-box">
+                        <strong>Administration:</strong> Test connectivity, check system status, and verify operations.
+                    </div>
+                    <ul class="link-list">
+                        <li class="link-item">
+                            <a href="connectivity-test.html">
+                                <span class="icon">🔍</span>
+                                <span class="title">
+                                    <span class="main">Connectivity Test</span>
+                                    <span class="desc">Verify server & database connection</span>
+                                </span>
+                            </a>
+                        </li>
+                        <li class="link-item">
+                            <a href="api-test.html">
+                                <span class="icon">🧪</span>
+                                <span class="title">
+                                    <span class="main">API Test Tool</span>
+                                    <span class="desc">Test individual API endpoints</span>
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+
+                    <hr style="margin: 20px 0; border: none; border-top: 1px solid #ddd;">
+
+                    <h5 style="color: #333; margin-bottom: 15px;">📚 Documentation</h5>
+                    <ul class="link-list">
+                        <li class="link-item">
+                            <a href="QUICK_START_CONNECTIVITY.md" target="_blank">
+                                <span class="icon">📖</span>
+                                <span class="title">
+                                    <span class="main">Quick Start Guide</span>
+                                    <span class="desc">Get started in 1 minute</span>
+                                </span>
+                            </a>
+                        </li>
+                        <li class="link-item">
+                            <a href="SERVER_MONGODB_CONNECTIVITY_REPORT.md" target="_blank">
+                                <span class="icon">📋</span>
+                                <span class="title">
+                                    <span class="main">Technical Report</span>
+                                    <span class="desc">Detailed system documentation</span>
+                                </span>
+                            </a>
+                        </li>
+                        <li class="link-item">
+                            <a href="FINAL_CONNECTIVITY_STATUS.md" target="_blank">
+                                <span class="icon">✅</span>
+                                <span class="title">
+                                    <span class="main">System Status</span>
+                                    <span class="desc">Current system verification</span>
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Getting Started -->
+        <div class="quick-access" style="background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%); border: 2px solid #667eea;">
+            <h3 style="color: #667eea;">🚀 Getting Started</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                <div style="padding: 20px; background: white; border-radius: 8px;">
+                    <h4 style="color: #333; margin-bottom: 10px;">1️⃣ New User?</h4>
+                    <p style="color: #666; margin-bottom: 15px; font-size: 14px;">Create your account and start filing complaints.</p>
+                    <a href="passenger-register.html" class="btn btn-primary" style="width: 100%;">Register Now</a>
+                </div>
+                <div style="padding: 20px; background: white; border-radius: 8px;">
+                    <h4 style="color: #333; margin-bottom: 10px;">2️⃣ Existing User?</h4>
+                    <p style="color: #666; margin-bottom: 15px; font-size: 14px;">Log in to your account and manage your complaints.</p>
+                    <a href="login-register.html" class="btn btn-primary" style="width: 100%;">Login</a>
+                </div>
+                <div style="padding: 20px; background: white; border-radius: 8px;">
+                    <h4 style="color: #333; margin-bottom: 10px;">3️⃣ File Complaint</h4>
+                    <p style="color: #666; margin-bottom: 15px; font-size: 14px;">Submit your issue with AI-powered categorization.</p>
+                    <a href="register-complaint.html" class="btn btn-primary" style="width: 100%;">Submit</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features -->
+        <div class="quick-access">
+            <h3>✨ Key Features</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                <div style="padding: 20px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #667eea;">
+                    <h4 style="color: #667eea; margin-bottom: 10px;">🤖 AI Classification</h4>
+                    <p style="color: #666; font-size: 14px;">Automatically categorizes complaints and assigns priority levels using advanced machine learning models.</p>
+                </div>
+                <div style="padding: 20px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #764ba2;">
+                    <h4 style="color: #764ba2; margin-bottom: 10px;">📊 Real-time Tracking</h4>
+                    <p style="color: #666; font-size: 14px;">Monitor your complaint status in real-time as it progresses through the system.</p>
+                </div>
+                <div style="padding: 20px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #28a745;">
+                    <h4 style="color: #28a745; margin-bottom: 10px;">🔒 Secure & Private</h4>
+                    <p style="color: #666; font-size: 14px;">Your data is encrypted and securely stored in our MongoDB database.</p>
+                </div>
+                <div style="padding: 20px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #ffc107;">
+                    <h4 style="color: #ffc107; margin-bottom: 10px;">⚡ Fast Response</h4>
+                    <p style="color: #666; font-size: 14px;">Get instant feedback and immediate action on your complaints.</p>
+                </div>
+                <div style="padding: 20px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #17a2b8;">
+                    <h4 style="color: #17a2b8; margin-bottom: 10px;">📱 Mobile Friendly</h4>
+                    <p style="color: #666; font-size: 14px;">Access from any device - fully responsive design.</p>
+                </div>
+                <div style="padding: 20px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #dc3545;">
+                    <h4 style="color: #dc3545; margin-bottom: 10px;">🎯 Easy to Use</h4>
+                    <p style="color: #666; font-size: 14px;">Intuitive interface designed for seamless user experience.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>
+                <strong>Railway Complaint Management System</strong><br>
+                Built with <span style="color: #dc3545;">❤</span> using Flask, MongoDB & AI Models<br>
+                <small style="color: #999;">© 2026 | All Rights Reserved</small>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Check system status on load
+        document.addEventListener('DOMContentLoaded', function() {
+            checkSystemStatus();
+        });
+
+        async function checkSystemStatus() {
+            const statusItems = document.querySelectorAll('.status-item');
+            const statuses = {
+                api: false,
+                db: false,
+                models: false,
+                system: false
+            };
+
+            try {
+                // Check API Server
+                const response = await fetch('http://127.0.0.1:5000/api/health');
+                if (response.ok) {
+                    statuses.api = true;
+                    console.log('✓ API Server is operational');
+                }
+            } catch (error) {
+                console.warn('✗ API server not running');
+            }
+
+            try {
+                // Check Database and Models
+                const response = await fetch('http://127.0.0.1:5000/api/test-db');
+                if (response.ok) {
+                    const data = await response.json();
+                    statuses.db = data.mongodb_status === true;
+                    statuses.models = data.models_status === true;
+                    console.log('✓ Database connected:', statuses.db);
+                    console.log('✓ Models loaded:', statuses.models);
+                }
+            } catch (error) {
+                console.warn('✗ Could not verify database/models');
+            }
+
+            // System is online if API is running
+            statuses.system = statuses.api;
+
+            // Update UI
+            updateStatusUI(statusItems, statuses);
+        }
+
+        function updateStatusUI(statusItems, statuses) {
+            const statusArray = [
+                { key: 'api', label: 'API Server' },
+                { key: 'db', label: 'Database' },
+                { key: 'models', label: 'AI Models' },
+                { key: 'system', label: 'System' }
+            ];
+
+            statusArray.forEach((item, index) => {
+                if (statusItems[index]) {
+                    const isReady = statuses[item.key];
+                    const icon = isReady ? '✓' : '✗';
+                    const status = isReady ? 'Ready' : 'Checking...';
+                    const valueElement = statusItems[index].querySelector('.value');
+                    if (valueElement) {
+                        valueElement.textContent = icon + ' ' + status;
+                        valueElement.style.color = isReady ? '#28a745' : '#ffc107';
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Track Train - RailKural</title>
+  <link rel="stylesheet" href="/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/css/multilingual.css">
+  <style>
+    body {
+      background: #f5f5f5;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .navbar {
+      background: #0A1A44;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .navbar-brand {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: white !important;
+    }
+
+    .nav-link {
+      color: rgba(255,255,255,0.9) !important;
+      margin: 0 0.5rem;
+      transition: all 0.3s ease;
+    }
+
+    .nav-link:hover {
+      color: #FF9933 !important;
+    }
+
+    .nav-link.active {
+      color: #FF9933 !important;
+      background: rgba(255, 153, 51, 0.2);
+      border-radius: 4px;
+      padding: 0.5rem 1rem;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 2rem auto;
+    }
+
+    .page-title {
+      color: #0A1A44;
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+
+    .card {
+      border: none;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+      margin-bottom: 2rem;
+    }
+
+    .card-header {
+      background: #0A1A44;
+      color: white;
+      border-radius: 10px 10px 0 0 !important;
+      padding: 1.5rem;
+      border: none;
+    }
+
+    .card-header h5 {
+      margin: 0;
+      font-weight: 600;
+    }
+
+    .form-group label {
+      font-weight: 600;
+      color: #0A1A44;
+      margin-bottom: 0.5rem;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 1rem;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #FF9933;
+      box-shadow: 0 0 5px rgba(255, 153, 51, 0.3);
+    }
+
+    .btn-primary {
+      background: #FF9933;
+      border: none;
+      color: white;
+      padding: 0.75rem 2rem;
+      font-weight: 600;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+      background: #E68A2D;
+    }
+
+    .train-info {
+      background: white;
+      border-radius: 10px;
+      padding: 1.5rem;
+      margin-top: 2rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+
+    .train-header {
+      border-bottom: 2px solid #FF9933;
+      padding-bottom: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .train-header h4 {
+      color: #0A1A44;
+      margin: 0;
+      font-weight: 700;
+    }
+
+    .train-detail {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .detail-item {
+      padding: 1rem;
+      background: #f9f9f9;
+      border-radius: 5px;
+      border-left: 4px solid #138808;
+    }
+
+    .detail-label {
+      font-weight: 600;
+      color: #0A1A44;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+
+    .detail-value {
+      font-size: 1.2rem;
+      color: #333;
+      font-weight: 500;
+    }
+
+    .train-route-visual {
+      background: white;
+      border-radius: 10px;
+      padding: 2rem;
+      margin-top: 2rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+
+    .route-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid #0A1A44;
+    }
+
+    .route-header h3 {
+      color: #0A1A44;
+      margin: 0;
+      font-size: 1.5rem;
+    }
+
+    .live-status {
+      background: #4CAF50;
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .live-indicator {
+      width: 8px;
+      height: 8px;
+      background: white;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    .timeline {
+      position: relative;
+      padding: 1rem 0;
+    }
+
+    .timeline-line {
+      position: absolute;
+      left: 30px;
+      top: 50px;
+      bottom: 50px;
+      width: 4px;
+      background: linear-gradient(to bottom, #4CAF50 0%, #4CAF50 40%, #ddd 40%, #ddd 100%);
+    }
+
+    .station-stop {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 2.5rem;
+      position: relative;
+      padding-left: 70px;
+    }
+
+    .station-dot {
+      position: absolute;
+      left: 18px;
+      top: 10px;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: white;
+      border: 4px solid #ddd;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .station-stop.completed .station-dot {
+      border-color: #4CAF50;
+      background: #4CAF50;
+    }
+
+    .station-stop.current .station-dot {
+      border-color: #FF9933;
+      background: #FF9933;
+      animation: currentStation 2s infinite;
+      box-shadow: 0 0 0 4px rgba(255, 153, 51, 0.2);
+    }
+
+    .station-stop.current .station-dot::after {
+      content: '🚂';
+      font-size: 14px;
+    }
+
+    @keyframes currentStation {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
+    .station-stop.upcoming .station-dot {
+      border-color: #ddd;
+      background: white;
+    }
+
+    .station-info {
+      flex: 1;
+      background: #f9f9f9;
+      padding: 1rem;
+      border-radius: 8px;
+      border-left: 3px solid #ddd;
+    }
+
+    .station-stop.completed .station-info {
+      border-left-color: #4CAF50;
+    }
+
+    .station-stop.current .station-info {
+      border-left-color: #FF9933;
+      background: #FFF8F0;
+      box-shadow: 0 2px 8px rgba(255, 153, 51, 0.1);
+    }
+
+    .station-name-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .station-name-main {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #0A1A44;
+    }
+
+    .platform-badge {
+      background: #0A1A44;
+      color: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .station-times {
+      display: flex;
+      gap: 2rem;
+      margin-top: 0.75rem;
+      font-size: 0.9rem;
+    }
+
+    .time-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .time-label {
+      color: #666;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      margin-bottom: 0.25rem;
+    }
+
+    .time-value {
+      font-weight: 700;
+      color: #0A1A44;
+      font-size: 1rem;
+    }
+
+    .time-value.delayed {
+      color: #d32f2f;
+    }
+
+    .delay-badge {
+      background: #ffebee;
+      color: #d32f2f;
+      padding: 0.25rem 0.5rem;
+      border-radius: 3px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-left: 0.5rem;
+    }
+
+    .distance-badge {
+      background: #e3f2fd;
+      color: #1976d2;
+      padding: 0.25rem 0.5rem;
+      border-radius: 3px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-top: 0.5rem;
+      display: inline-block;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .status-ontime {
+      background: #c8e6c9;
+      color: #2e7d32;
+    }
+
+    .status-delayed {
+      background: #ffccbc;
+      color: #d84315;
+    }
+
+    .status-approaching {
+      background: #fff9c4;
+      color: #f57f17;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 2rem;
+      color: #999;
+    }
+
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #FF9933;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 1rem;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .error-message {
+      background: #ffebee;
+      color: #c62828;
+      padding: 1rem;
+      border-radius: 5px;
+      margin-top: 1rem;
+      display: none;
+    }
+
+    .success-message {
+      background: #e8f5e9;
+      color: #2e7d32;
+      padding: 1rem;
+      border-radius: 5px;
+      margin-top: 1rem;
+      display: none;
+    }
+
+    .route-info {
+      background: #f0f7ff;
+      border: 2px solid #0A1A44;
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .route-info h5 {
+      color: #0A1A44;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    .station-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .station-item {
+      padding: 0.8rem;
+      margin-bottom: 0.5rem;
+      background: white;
+      border-left: 4px solid #FF9933;
+      border-radius: 3px;
+    }
+
+    .station-name {
+      font-weight: 600;
+      color: #0A1A44;
+    }
+
+    .station-time {
+      color: #666;
+      font-size: 0.9rem;
+    }
+
+    .language-switcher {
+      display: flex;
+      gap: 0.5rem;
+      border-left: 1px solid rgba(255,255,255,0.2);
+      padding-left: 1rem;
+    }
+
+    .lang-btn {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.5);
+      color: rgba(255,255,255,0.8);
+      padding: 0.35rem 0.75rem;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .lang-btn:hover {
+      border-color: #FF9933;
+      color: #FF9933;
+    }
+
+    .lang-btn.active {
+      background: #FF9933;
+      border-color: #FF9933;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation Bar -->
+  <nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="/dashboard.html">🚂 RailKural</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item"><a class="nav-link" href="/dashboard.html" id="dashboardLink">Dashboard</a></li>
+          <li class="nav-item"><a class="nav-link" href="/register-complaint.html" id="registerLink">Register Complaint</a></li>
+          <li class="nav-item"><a class="nav-link" href="/track-complaint.html" id="trackLink">Track Complaint</a></li>
+          <li class="nav-item"><a class="nav-link active" href="/track-train.html" id="trackTrainLink">Track Train</a></li>
+          <li class="nav-item"><a class="nav-link" href="/report-theft-lost.html" id="reportLink">Report Theft</a></li>
+          <li class="nav-item dropdown ml-3">
+            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              👤
+            </a>
+            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
+              <a class="dropdown-item" href="/user-profile.html">My Profile</a>
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item" href="/login-register.html">Logout</a>
+            </div>
+          </li>
+          <li class="nav-item ml-3">
+            <div class="language-switcher">
+              <button class="lang-btn" onclick="switchLanguage('en')">EN</button>
+              <button class="lang-btn" onclick="switchLanguage('ta')">TA</button>
+              <button class="lang-btn" onclick="switchLanguage('hi')">HI</button>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="container">
+    <h1 class="page-title">🚂 Track Train</h1>
+
+    <!-- Search Card -->
+    <div class="card">
+      <div class="card-header">
+        <h5>Enter Train Number</h5>
+      </div>
+      <div class="card-body" style="padding: 2rem;">
+        <div class="form-group">
+          <label for="trainNumber">Train Number *</label>
+          <input 
+            type="text" 
+            id="trainNumber" 
+            placeholder="Enter train number (e.g., 12345)" 
+            style="padding: 0.75rem; border: 1px solid #ddd; border-radius: 5px; font-size: 1rem;"
+          >
+          <small style="color: #999;">Example: 12569 (Goa Express), 12015 (Ashram Express)</small>
+        </div>
+
+        <button class="btn-primary" onclick="trackTrain()" style="width: 100%; padding: 0.75rem;">
+          Track Train
+        </button>
+
+        <div class="error-message" id="errorMessage"></div>
+        <div class="success-message" id="successMessage"></div>
+      </div>
+    </div>
+
+    <!-- Results Section -->
+    <div id="resultsContainer" style="display: none;">
+      <!-- Train Basic Info Card -->
+      <div class="train-info">
+        <div class="train-header">
+          <h4>
+            <span id="trainName">Train Name</span>
+            <span class="status-badge" id="statusBadge" style="float: right;">Status</span>
+          </h4>
+        </div>
+
+        <div class="train-detail">
+          <div class="detail-item">
+            <div class="detail-label">Train Number</div>
+            <div class="detail-value" id="trainNum">-</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Next Station</div>
+            <div class="detail-value" id="currentStation">-</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Arrival Time</div>
+            <div class="detail-value" id="arrivalTime">-</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Delay Status</div>
+            <div class="detail-value" id="delayStatus">-</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Visual Route Timeline -->
+      <div class="train-route-visual" id="routeVisual">
+        <div class="route-header">
+          <h3>Train Route</h3>
+          <div class="live-status">
+            <div class="live-indicator"></div>
+            <span>LIVE</span>
+          </div>
+        </div>
+
+        <div class="timeline" id="timelineContainer">
+          <div class="timeline-line"></div>
+          <!-- Stations will be dynamically added here -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div class="loading" id="loadingState" style="display: none;">
+      <div class="spinner"></div>
+      <p>Fetching train information...</p>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // Set active tab on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      setActiveTab();
+    });
+
+    function setActiveTab() {
+      const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+      document.querySelectorAll('.nav-link').forEach(link => {
+        link.classList.remove('active');
+      });
+      
+      if (currentPage === 'track-train.html' || currentPage === '') {
+        const trackTrainLink = document.getElementById('trackTrainLink');
+        if (trackTrainLink) trackTrainLink.classList.add('active');
+      }
+    }
+
+    function trackTrain() {
+      const trainNumber = document.getElementById('trainNumber').value.trim();
+      
+      if (!trainNumber) {
+        showError('Please enter a train number');
+        return;
+      }
+
+      hideError();
+      hideSuccess();
+      document.getElementById('resultsContainer').style.display = 'none';
+      document.getElementById('loadingState').style.display = 'block';
+
+      fetch(`/api/track-train/${encodeURIComponent(trainNumber)}`)
+        .then(async response => ({ status: response.status, body: await response.json() }))
+        .then(({ status, body }) => {
+          document.getElementById('loadingState').style.display = 'none';
+          if (status === 200 && body.success) {
+            displayTrainInfo(body.data || body);
+            document.getElementById('resultsContainer').style.display = 'block';
+            showSuccess('Train information loaded successfully!');
+          } else {
+            showError(body.message || 'Unable to fetch train information. Please check the train number and try again.');
+          }
+        })
+        .catch(error => {
+          document.getElementById('loadingState').style.display = 'none';
+          console.error('Fetch error:', error);
+          showError(`Connection error: ${error.message}. Please make sure the server is running.`);
+        });
+    }
+
+    function displayTrainInfo(trainData) {
+      const info = normalizeTrainData(trainData);
+
+      document.getElementById('trainNum').textContent = info.trainNo || '—';
+      document.getElementById('trainName').textContent = info.trainName || 'Train';
+      
+      // Show NEXT STATION instead of current station
+      let nextStationName = '—';
+      let nextStationArrival = '—';
+      
+      if (info.route && info.route.length > info.currentIndex + 1) {
+        const nextStation = info.route[info.currentIndex + 1];
+        nextStationName = nextStation.name;
+        nextStationArrival = nextStation.arrivalTime;
+      } else if (info.route && info.route.length > info.currentIndex) {
+        // If no station after current, show current station's departure as next event
+        const currentStation = info.route[info.currentIndex];
+        nextStationName = currentStation.name;
+        nextStationArrival = currentStation.departureTime !== '---' ? currentStation.departureTime : currentStation.arrivalTime;
+      }
+      
+      document.getElementById('currentStation').textContent = nextStationName;
+      document.getElementById('arrivalTime').textContent = nextStationArrival;
+
+      if (info.delayMinutes > 0) {
+        document.getElementById('delayStatus').textContent = `Delayed by ${info.delayMinutes} minutes`;
+        document.getElementById('statusBadge').className = 'status-badge status-delayed';
+        document.getElementById('statusBadge').textContent = `DELAYED ${info.delayMinutes} MIN`;
+      } else {
+        document.getElementById('delayStatus').textContent = 'On Time';
+        document.getElementById('statusBadge').className = 'status-badge status-ontime';
+        document.getElementById('statusBadge').textContent = 'ON TIME';
+      }
+
+      buildTimeline(info.route, info.currentIndex, info.delayMinutes);
+    }
+
+    function normalizeTrainData(raw) {
+      const data = raw?.data || raw || {};
+
+      console.log('Raw API data:', JSON.stringify(data, null, 2));
+
+      const trainNo = data.trainNo || data.train_number || data.trainNumber || data.number || data.train?.number || '12083';
+      const trainName = data.trainName || data.train_name || data.name || data.train?.name || 'Train';
+      
+      // CRITICAL: Check all possible route keys
+      let routeArray = null;
+      if (data.route && Array.isArray(data.route)) {
+        routeArray = data.route;
+      } else if (Array.isArray(data)) {
+        // Schedule API returns array directly
+        routeArray = data;
+      } else if (data.stations && Array.isArray(data.stations)) {
+        routeArray = data.stations;
+      } else if (data.stationList && Array.isArray(data.stationList)) {
+        routeArray = data.stationList;
+      } else if (data.routeSchedule && Array.isArray(data.routeSchedule)) {
+        routeArray = data.routeSchedule;
+      } else if (data.route_schedule && Array.isArray(data.route_schedule)) {
+        routeArray = data.route_schedule;
+      } else {
+        routeArray = [];
+      }
+
+      console.log(`Found ${routeArray.length} stations in route`);
+
+      let route = routeArray.map((stop, idx) => {
+        const statusText = (stop.status || stop.state || '').toLowerCase();
+        
+        // Parse station name (handle different formats)
+        let stationName = stop.stationName || stop.station_name || stop.station?.name || stop.station || stop.name || `Station ${idx + 1}`;
+        
+        // Parse times - schedule API uses different field names
+        let arrTime = stop.arrival_time || stop.arrivalTime || stop.eta || stop.actarr || stop.scharr || stop.expectedArrival || stop.schArr || stop.arr || stop.sta || '---';
+        let depTime = stop.departure_time || stop.departureTime || stop.etd || stop.actdep || stop.schdep || stop.expectedDeparture || stop.schDep || stop.dep || stop.std || '---';
+        
+        // Parse platform
+        let platform = stop.platform || stop.platform_number || stop.platformNumber || '—';
+        
+        // Parse distance
+        let distance = stop.distance_from_source || stop.distanceKm || stop.distance || stop.km || '';
+        if (distance && !distance.toString().includes('km')) {
+          distance = distance + ' km';
+        }
+        
+        // Parse halt time
+        let haltTime = stop.halt || stop.halt_time || stop.haltTime || stop.haltMinutes || '';
+        
+        // Check if train stops at this station (STRICT filtering)
+        let halts = false;
+        
+        // Method 1: Check halt field explicitly (RailRadar uses haltMinutes as number)
+        if (haltTime && haltTime !== '' && haltTime !== '0' && haltTime !== 0) {
+          halts = true;
+        }
+        // Method 2: Origin and destination always count
+        else if (idx === 0 || idx === routeArray.length - 1) {
+          halts = true;
+        }
+        // Method 3: Has both valid arrival AND departure times (and they're different)
+        else if (arrTime && arrTime !== '' && arrTime !== '---' && 
+                 depTime && depTime !== '' && depTime !== '---' && 
+                 arrTime !== depTime) {
+          halts = true;
+        }
+        
+        console.log(`${stationName}: halt=${haltTime}, arr=${arrTime}, dep=${depTime}, halts=${halts}`);
+        
+        return {
+          name: stationName,
+          platform: platform,
+          arrivalTime: arrTime,
+          departureTime: depTime,
+          distance: distance,
+          status: statusText,
+          delay: parseInt(stop.lateMins || stop.delay || stop.delayMinutes || 0, 10) || 0,
+          halt: haltTime,
+          halts: halts
+        };
+      });
+
+      // Filter to show only stations where train stops
+      const totalStations = route.length;
+      route = route.filter(stop => stop.halts);
+      console.log(`Filtered from ${totalStations} total stations to ${route.length} stations where train stops`);
+
+      // Fallback: If no route data from API, load defaults
+      if (route.length === 0) {
+        // Default for 12084 Jan Shatabdi (Coimbatore -> Mayiladuthurai)
+        if ((trainNo || '').toString() === '12084') {
+          console.warn('No route data from API. Loading default route for 12084 Jan Shatabdi (CBE -> MV).');
+          route = [
+            { name: 'Coimbatore Jn',    platform: '5', arrivalTime: '---',       departureTime: '06:00 AM', distance: '0 km',   status: '', delay: 0, halts: true },
+            { name: 'Tiruppur',         platform: '1', arrivalTime: '06:38 AM', departureTime: '06:40 AM', distance: '55 km',  status: '', delay: 0, halts: true },
+            { name: 'Erode Jn',         platform: '2', arrivalTime: '07:20 AM', departureTime: '07:25 AM', distance: '105 km', status: '', delay: 0, halts: true },
+            { name: 'Karur',            platform: '1', arrivalTime: '08:15 AM', departureTime: '08:17 AM', distance: '170 km', status: '', delay: 0, halts: true },
+            { name: 'Tiruchchirappalli Jn', platform: '4', arrivalTime: '09:25 AM', departureTime: '09:35 AM', distance: '235 km', status: '', delay: 0, halts: true },
+            { name: 'Thanjavur Jn',     platform: '3', arrivalTime: '10:30 AM', departureTime: '10:35 AM', distance: '285 km', status: '', delay: 0, halts: true },
+            { name: 'Kumbakonam',       platform: '1', arrivalTime: '11:20 AM', departureTime: '11:22 AM', distance: '325 km', status: '', delay: 0, halts: true },
+            { name: 'Mayiladuthurai Jn', platform: '1', arrivalTime: '12:00 PM', departureTime: '---',      distance: '350 km', status: '', delay: 0, halts: true }
+          ];
+        // Default for 12680 Intercity (Coimbatore -> Chennai)
+        } else if ((trainNo || '').toString() === '12680') {
+          console.warn('No route data from API. Loading default route for 12680 Intercity (CBE -> MAS).');
+          route = [
+            { name: 'Coimbatore Jn',   platform: '5', arrivalTime: '---',        departureTime: '06:15 AM', distance: '0 km',   status: '', delay: 0, halts: true },
+            { name: 'Tiruppur',        platform: '1', arrivalTime: '06:53 AM',   departureTime: '06:55 AM', distance: '50 km',  status: '', delay: 0, halts: true },
+            { name: 'Erode Jn',        platform: '2', arrivalTime: '07:35 AM',   departureTime: '07:40 AM', distance: '100 km', status: '', delay: 0, halts: true },
+            { name: 'Salem Jn',        platform: '3', arrivalTime: '08:35 AM',   departureTime: '08:40 AM', distance: '165 km', status: '', delay: 0, halts: true },
+            { name: 'Jolarpettai Jn',  platform: '2', arrivalTime: '09:45 AM',   departureTime: '09:47 AM', distance: '255 km', status: '', delay: 0, halts: true },
+            { name: 'Katpadi Jn',      platform: '4', arrivalTime: '10:45 AM',   departureTime: '10:47 AM', distance: '320 km', status: '', delay: 0, halts: true },
+            { name: 'Arakkonam',       platform: '2', arrivalTime: '11:25 AM',   departureTime: '11:27 AM', distance: '365 km', status: '', delay: 0, halts: true },
+            { name: 'Chennai Central', platform: '6', arrivalTime: '12:30 PM',   departureTime: '---',       distance: '405 km', status: '', delay: 0, halts: true }
+          ];
+        } else {
+          console.warn('No route data from API. Using sample data for demonstration.');
+          route = [
+            { name: 'Mayiladuthurai Junction', platform: '4', arrivalTime: '---', departureTime: '3:12 PM', distance: '0 km', status: '', delay: 0 },
+            { name: 'Kumbakonam', platform: '1', arrivalTime: '3:37 PM', departureTime: '3:39 PM', distance: '31 km', status: 'current', delay: 5 },
+            { name: 'Papanasam', platform: '1', arrivalTime: '3:47 PM', departureTime: '3:49 PM', distance: '45 km', status: '', delay: 0 },
+            { name: 'Thanjavur Junction', platform: '9', arrivalTime: '4:04 PM', departureTime: '4:20 PM', distance: '70 km', status: '', delay: 0 },
+            { name: 'Tiruchchirappalli Junction', platform: '1', arrivalTime: '5:02 PM', departureTime: '5:25 PM', distance: '120 km', status: '', delay: 0 },
+            { name: 'Karur', platform: '2', arrivalTime: '6:15 PM', departureTime: '6:17 PM', distance: '185 km', status: '', delay: 0 },
+            { name: 'Erode Junction', platform: '3', arrivalTime: '7:30 PM', departureTime: '7:35 PM', distance: '250 km', status: '', delay: 0 },
+            { name: 'Tiruppur', platform: '1', arrivalTime: '8:10 PM', departureTime: '8:12 PM', distance: '295 km', status: '', delay: 0 },
+            { name: 'Coimbatore Junction', platform: '5', arrivalTime: '9:00 PM', departureTime: '---', distance: '350 km', status: '', delay: 0 }
+          ];
+        }
+      }
+
+      // Find current station index
+      let currentIndex = route.findIndex(stop => {
+        const s = stop.status.toLowerCase();
+        return s.includes('current') || s.includes('arrived') || s.includes('departed') || s.includes('at');
+      });
+      
+      if (currentIndex === -1 && data.currentStationIndex !== undefined) {
+        currentIndex = Number(data.currentStationIndex);
+      }
+      
+      // If status API provided current station name, find it in route
+      if (currentIndex === -1 && data.currentStation) {
+        currentIndex = route.findIndex(stop => 
+          stop.name.toLowerCase().includes(data.currentStation.toLowerCase()) ||
+          data.currentStation.toLowerCase().includes(stop.name.toLowerCase())
+        );
+      }
+      
+      if (currentIndex === -1) {
+        // If no current station marked, assume we're at index 1 (first station after origin)
+        currentIndex = route.length > 1 ? 1 : 0;
+      }
+
+      console.log(`Current station index: ${currentIndex} (${route[currentIndex]?.name})`);
+
+      // Mark timeline status
+      route.forEach((stop, idx) => {
+        if (idx < currentIndex) stop.timelineStatus = 'completed';
+        else if (idx === currentIndex) stop.timelineStatus = 'current';
+        else stop.timelineStatus = 'upcoming';
+      });
+
+      const currentStation = data.currentStation || data.current_station || (route[currentIndex] ? route[currentIndex].name : '—');
+      const delayMinutes = parseInt(
+        data.delayMinutes || data.delay || data.lateMins || data.delay_minutes || 0,
+        10
+      ) || 0;
+
+      return {
+        trainNo,
+        trainName,
+        currentStation: currentStation,
+        destinationEta: route.length ? route[route.length - 1].arrivalTime : '—',
+        delayMinutes,
+        route,
+        currentIndex
+      };
+    }
+
+    function buildTimeline(route, currentIndex, delayMinutes) {
+      const timelineContainer = document.getElementById('timelineContainer');
+      const existingLine = timelineContainer.querySelector('.timeline-line');
+      timelineContainer.innerHTML = '';
+      if (existingLine) timelineContainer.appendChild(existingLine);
+
+      if (!route || route.length === 0) {
+        const empty = document.createElement('p');
+        empty.textContent = 'No route information available for this train yet.';
+        empty.style.padding = '1rem';
+        empty.style.color = '#666';
+        timelineContainer.appendChild(empty);
+        return;
+      }
+
+      console.log(`Building timeline with ${route.length} stations, current index: ${currentIndex}`);
+
+      route.forEach((station, index) => {
+        const stationDiv = document.createElement('div');
+        stationDiv.className = `station-stop ${station.timelineStatus || 'upcoming'}`;
+
+        const actualArrival = station.timelineStatus === 'current' && delayMinutes > 0
+          ? addMinutes(station.arrivalTime, delayMinutes)
+          : station.arrivalTime;
+
+        const actualDeparture = station.timelineStatus === 'current' && delayMinutes > 0
+          ? addMinutes(station.departureTime, delayMinutes)
+          : station.departureTime;
+
+        stationDiv.innerHTML = `
+          <div class="station-dot"></div>
+          <div class="station-info">
+            <div class="station-name-row">
+              <div class="station-name-main">${station.name}</div>
+              <div class="platform-badge">Platform ${station.platform}</div>
+            </div>
+            <div class="distance-badge">📍 ${station.distance || '—'}</div>
+            <div class="station-times">
+              ${station.arrivalTime && station.arrivalTime !== '---' ? `
+              <div class="time-item">
+                <div class="time-label">Arrival</div>
+                <div class="time-value ${station.timelineStatus === 'current' && delayMinutes > 0 ? 'delayed' : ''}">
+                  ${actualArrival}
+                  ${station.timelineStatus === 'current' && delayMinutes > 0 ? `<span class="delay-badge">+${delayMinutes} min</span>` : ''}
+                </div>
+              </div>
+              ` : `
+              <div class="time-item">
+                <div class="time-label">Start</div>
+                <div class="time-value">Origin</div>
+              </div>
+              `}
+              ${station.departureTime && station.departureTime !== '---' ? `
+              <div class="time-item">
+                <div class="time-label">Departure</div>
+                <div class="time-value ${station.timelineStatus === 'current' && delayMinutes > 0 ? 'delayed' : ''}">
+                  ${actualDeparture}
+                  ${station.timelineStatus === 'current' && delayMinutes > 0 ? `<span class="delay-badge">+${delayMinutes} min</span>` : ''}
+                </div>
+              </div>
+              ` : `
+              <div class="time-item">
+                <div class="time-label">End</div>
+                <div class="time-value">Destination</div>
+              </div>
+              `}
+            </div>
+          </div>
+        `;
+
+        timelineContainer.appendChild(stationDiv);
+      });
+
+      // Update timeline gradient based on current position
+      if (existingLine && route.length > 1) {
+        const percentage = (currentIndex / (route.length - 1)) * 100;
+        existingLine.style.background = `linear-gradient(to bottom, #4CAF50 0%, #4CAF50 ${percentage}%, #ddd ${percentage}%, #ddd 100%)`;
+        console.log(`Timeline progress: ${percentage.toFixed(1)}%`);
+      }
+    }
+
+    function addMinutes(time, minutes) {
+      if (!time || time === '---') return time;
+      const [timePart, period] = time.split(' ');
+      const [hours, mins] = timePart.split(':').map(Number);
+      
+      let totalMins = (period === 'PM' && hours !== 12 ? hours + 12 : hours) * 60 + mins + minutes;
+      let newHours = Math.floor(totalMins / 60) % 24;
+      let newMins = totalMins % 60;
+      
+      const newPeriod = newHours >= 12 ? 'PM' : 'AM';
+      newHours = newHours % 12 || 12;
+      
+      return `${newHours}:${String(newMins).padStart(2, '0')} ${newPeriod}`;
+    }
+
+    function showError(message) {
+      const errorDiv = document.getElementById('errorMessage');
+      errorDiv.textContent = message;
+      errorDiv.style.display = 'block';
+    }
+
+    function hideError() {
+      document.getElementById('errorMessage').style.display = 'none';
+    }
+
+    function showSuccess(message) {
+      const successDiv = document.getElementById('successMessage');
+      successDiv.textContent = message;
+      successDiv.style.display = 'block';
+    }
+
+    function hideSuccess() {
+      document.getElementById('successMessage').style.display = 'none';
+    }
+
+    function switchLanguage(lang) {
+      localStorage.setItem('language', lang);
+      // Reload page to apply language
+      location.reload();
+    }
+
+    // Allow Enter key to search
+    document.getElementById('trainNumber').addEventListener('keypress', function(event) {
+      if (event.key === 'Enter') {
+        trackTrain();
+      }
+    });
+  </script>
+</body>
+</html>

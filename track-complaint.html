@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Track Complaint - RailKural</title>
+  <link rel="stylesheet" href="/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/multilingual.css">
+  <style>
+    .star-rating {
+      display: flex;
+      gap: 0.5rem;
+      font-size: 2rem;
+    }
+
+    /* Navbar active tab styling with smooth transition */
+    .nav-link {
+      transition: color 0.25s ease, background-color 0.25s ease;
+    }
+
+    .nav-link.active {
+      color: #FF9933 !important;
+      background: rgba(255, 153, 51, 0.2);
+      border-radius: 4px;
+      padding: 0.5rem 1rem;
+    }
+
+    .star {
+      cursor: pointer;
+      color: #ddd;
+      transition: all 0.2s ease;
+      user-select: none;
+      text-shadow: none;
+      filter: brightness(0.6);
+    }
+
+    .star:hover {
+      color: #FFD700;
+      text-shadow: 0 0 5px rgba(255,215,0,0.6);
+      transform: scale(1.15);
+      filter: brightness(1.2);
+    }
+
+    .star.selected {
+      color: #FFD700;
+      text-shadow: 0 0 8px rgba(255,215,0,0.9);
+      filter: brightness(1.3);
+      transform: scale(1.1);
+    }
+
+    #submitFeedbackBtn:hover {
+      background: #229954 !important;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(39,174,96,0.3);
+    }
+
+    #cancelFeedbackBtn:hover {
+      background: #7f8c8d !important;
+      transform: translateY(-2px);
+    }
+
+    #submitFeedbackBtn:disabled {
+      background: #95a5a6 !important;
+      cursor: not-allowed;
+      transform: none;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark">
+    <a class="navbar-brand" href="/dashboard.html">🚆 RailKural</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ml-auto">
+        <li class="nav-item"><a class="nav-link" href="/dashboard.html" id="dashboardLink">Dashboard</a></li>
+        <li class="nav-item"><a class="nav-link" href="/register-complaint.html" id="registerLink">Register New Complaint</a></li>
+        <li class="nav-item"><a class="nav-link active" href="/track-complaint.html" id="trackLink">Track Complaint</a></li>
+        <li class="nav-item"><a class="nav-link" href="/track-train.html" id="trackTrainLink">Track Train</a></li>
+        <li class="nav-item"><a class="nav-link" href="/report-theft-lost.html" id="reportLink">Report Theft</a></li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown">
+            <span class="user-avatar-small">👤</span>
+          </a>
+          <div class="dropdown-menu dropdown-menu-right" id="userDropdownMenu">
+            <a class="dropdown-item" href="/user-profile.html" id="profileLink">My Profile</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="/login-register.html" id="logoutLink">Logout</a>
+          </div>
+        </li>
+        <li class="nav-item language-switcher">
+          <button class="lang-btn" onclick="switchLanguage('en')">EN</button>
+          <button class="lang-btn" onclick="switchLanguage('ta')">TA</button>
+          <button class="lang-btn" onclick="switchLanguage('hi')">HI</button>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="container py-4">
+    <div class="row">
+      <div class="col-md-12 mb-4">
+        <div style="background: transparent; border: none; padding: 15px; border-radius: 8px; margin-bottom: 15px; display: none;" id="debugInfo">
+          <strong style="color: transparent;">Debug Info:</strong>
+          <div id="debugContent" style="font-size: 12px; color: transparent; margin-top: 8px; font-family: monospace;"></div>
+        </div>
+        <div class="card">
+          <div class="card-body">
+            <h4 id="myComplaintsTitle">My Complaints</h4>
+            <p id="myComplaintsDesc" style="color: #666;">All complaints registered by you</p>
+            <p id="userEmailDisplay" style="color: #999; font-size: 13px; margin-bottom: 1rem;"></p>
+            
+            <div style="margin-top: 1.5rem;">
+              <button class="btn btn-primary" id="refreshBtn" onclick="loadUserComplaints()" style="margin-bottom: 1rem;">🔄 Refresh Complaints</button>
+              <button class="btn btn-secondary" id="debugBtn" onclick="toggleDebugMode()" style="margin-bottom: 1rem; margin-left: 10px; background: transparent; border: none; color: transparent; cursor: pointer;">🐛 Debug</button>
+              <div id="complaintsList" style="margin-top: 1rem;"></div>
+              <div id="noComplaintsMessage" style="display: none; text-align: center; padding: 2rem; color: #999;">
+                <p id="noComplaintsText">You have not filed any complaints yet.</p>
+                <a href="register-complaint.html" class="btn btn-primary" id="fileComplaintBtn">📝 File a Complaint</a>
+              </div>
+              <div id="loadingMessage" style="text-align: center; padding: 2rem; color: #666;">
+                <p>Loading your complaints...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Complaint Details Section -->
+    <div id="complaintDetailsSection" style="display: none;">
+      <div class="row">
+        <div class="col-md-8 offset-md-2">
+          <div class="card">
+            <div class="card-body">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h3 id="complaintDetailsTitle">Complaint Details</h3>
+                <button type="button" class="btn btn-secondary" id="closeDetailsBtn" onclick="hideComplaintDetails()">Close</button>
+              </div>
+
+              <div class="complaint-details">
+                <div class="detail-row">
+                  <div>
+                    <div class="detail-label" id="complaintIdDetailLabel">Complaint ID</div>
+                    <div class="detail-value" id="complaintIdDetail"></div>
+                  </div>
+                  <div>
+                    <div class="detail-label" id="statusLabel">Status</div>
+                    <div class="detail-value">
+                      <span class="status-badge" id="statusBadge"></span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="detail-row">
+                  <div>
+                    <div class="detail-label" id="submittedOnLabel">Submitted On</div>
+                    <div class="detail-value" id="submittedOnDetail"></div>
+                  </div>
+                  <div>
+                    <div class="detail-label" id="categoryDetailLabel">Category</div>
+                    <div class="detail-value" id="categoryDetail"></div>
+                  </div>
+                </div>
+
+                <div class="detail-row">
+                  <div style="display: none; background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%); border-left: 4px solid #28a745; padding: 15px; border-radius: 6px; box-shadow: 0 2px 8px rgba(40, 167, 69, 0.15);" id="resolutionSection">
+                    <div class="detail-label" id="resolutionLabel" style="color: #155724; font-weight: 600;">✓ Resolution</div>
+                    <div class="detail-value" id="resolutionDetail" style="color: #155724; margin-top: 8px;"></div>
+                  </div>
+                </div>
+
+                <div class="detail-row">
+                  <div style="grid-column: 1 / -1;">
+                    <div class="detail-label" id="descriptionDetailLabel">Description</div>
+                    <div class="detail-value" id="descriptionDetail" style="line-height: 1.6;"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Rating & Feedback Section (only visible when status is Completed) -->
+              <div id="ratingFeedbackSection" style="display: none; margin-top: 2rem; padding: 2rem; background: #f0f7ff; border-radius: 10px; border: 2px solid #3498db;">
+                <h4 id="ratingFeedbackTitle" style="color: #2c3e50; margin-bottom: 1.5rem;">📝 Share Your Feedback</h4>
+                <p id="ratingFeedbackDesc" style="color: #666; margin-bottom: 1.5rem;">Your feedback helps us improve our service. Please rate your experience and share any additional comments.</p>
+                
+                <!-- Star Rating -->
+                <div style="margin-bottom: 1.5rem;">
+                  <label id="ratingLabel" style="display: block; font-weight: 600; color: #333; margin-bottom: 0.5rem;">Rate Your Experience:</label>
+                  <div style="display: flex; gap: 0.5rem; align-items: center;">
+                    <div class="star-rating" id="starRating">
+                      <span class="star" onclick="setRating(1)" data-rating="1" title="Poor">⭐</span>
+                      <span class="star" onclick="setRating(2)" data-rating="2" title="Fair">⭐</span>
+                      <span class="star" onclick="setRating(3)" data-rating="3" title="Good">⭐</span>
+                      <span class="star" onclick="setRating(4)" data-rating="4" title="Very Good">⭐</span>
+                      <span class="star" onclick="setRating(5)" data-rating="5" title="Excellent">⭐</span>
+                    </div>
+                    <span id="ratingValue" style="margin-left: 1rem; font-weight: 600; color: #3498db; font-size: 1.1rem;"></span>
+                  </div>
+                </div>
+
+                <!-- Feedback Text -->
+                <div style="margin-bottom: 1.5rem;">
+                  <label id="feedbackLabel" style="display: block; font-weight: 600; color: #333; margin-bottom: 0.5rem;">Additional Feedback (Optional):</label>
+                  <textarea id="feedbackText" placeholder="Share your experience... Tell us what went well and what could be improved." style="width: 100%; padding: 1rem; border: 2px solid #ddd; border-radius: 8px; font-family: Arial, sans-serif; font-size: 14px; resize: vertical; min-height: 120px;" maxlength="500"></textarea>
+                  <small id="charCount" style="color: #999; display: block; margin-top: 0.5rem;"><span id="charCountNum">0</span>/500</small>
+                </div>
+
+                <!-- Feedback Buttons -->
+                <div style="display: flex; gap: 1rem;">
+                  <button id="submitFeedbackBtn" onclick="submitFeedback()" style="flex: 1; padding: 0.75rem 1rem; background: #27ae60; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 1rem;">✓ Submit Feedback</button>
+                  <button id="cancelFeedbackBtn" onclick="resetFeedbackForm()" style="flex: 1; padding: 0.75rem 1rem; background: #95a5a6; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 1rem;">Clear Form</button>
+                </div>
+
+                <!-- Success Message -->
+                <div id="feedbackSuccessMsg" style="display: none; margin-top: 1rem; padding: 1rem; background: #d4edda; border: 1px solid #c3e6cb; border-radius: 8px; color: #155724; text-align: center;">
+                  ✅ <span id="feedbackSuccessText">Thank you for your feedback!</span>
+                </div>
+
+                <!-- Existing Feedback Display -->
+                <div id="existingFeedback" style="display: none; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #ddd;">
+                  <h5 id="feedbackSubmittedLabel" style="color: #2c3e50; margin-bottom: 1rem;">Your Feedback:</h5>
+                  <div style="display: flex; gap: 2rem;">
+                    <div>
+                      <p id="ratingLabelSubmitted" style="color: #666; font-size: 0.9rem; margin-bottom: 0.3rem;">Rating:</p>
+                      <div id="submittedRatingDisplay" style="font-size: 1.5rem; font-weight: 600;"></div>
+                    </div>
+                    <div style="flex: 1;">
+                      <p id="feedbackLabelSubmitted" style="color: #666; font-size: 0.9rem; margin-bottom: 0.3rem;">Your Comment:</p>
+                      <p id="submittedFeedbackDisplay" style="color: #333; font-size: 0.95rem; line-height: 1.5;"></p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- No Results Message -->
+    <div id="noResultsMessage" style="display: none; text-align: center; padding: 3rem;">
+      <h3 id="noResultsTitle" style="color: #d32f2f; margin-bottom: 1rem;">No Complaint Found</h3>
+      <p id="noResultsText" style="color: #666; margin-bottom: 1rem;">Please check your complaint ID and try again</p>
+      <button class="btn btn-primary" id="tryAgainBtn" onclick="resetSearch()">Try Again</button>
+    </div>
+  </main>
+
+  <!-- Chatbot -->
+  <button class="chatbot-toggle" id="chatbotToggle" onclick="toggleChatbot()">💬</button>
+
+  <div class="chatbot-container" id="chatbotContainer" style="display: none;">
+    <div class="chatbot-header">
+      <h5 id="chatTitle">Railway Support</h5>
+      <button class="chatbot-close" onclick="toggleChatbot()">×</button>
+    </div>
+    <div class="chatbot-messages" id="chatbotMessages"></div>
+    <div class="chatbot-input">
+      <input type="text" id="chatInput" placeholder="Type message..." onkeypress="handleChatKeypress(event)">
+      <button onclick="sendChatMessage()">→</button>
+    </div>
+  </div>
+
+  <script src="/js/translations.js"></script>
+  <script>
+    // Sample complaint data
+    const sampleComplaints = {
+      'RAIL1704067200000': {
+        id: 'RAIL1704067200000',
+        status: 'In Progress',
+        statusClass: 'status-progress',
+        submittedOn: '2024-01-01',
+        category: 'Service Quality Issue',
+        name: 'Rajesh Kumar',
+        email: 'rajesh@email.com',
+        phone: '9876543210',
+        trainNumber: '12345',
+        trainName: 'Rajdhani Express',
+        boarding: 'Mumbai Central',
+        destination: 'Delhi Central',
+        journeyDate: '2024-01-02',
+        class: '2A',
+        coach: 'A-12',
+        seat: '45',
+        description: 'The train was delayed by 2 hours. The AC was not working properly in the coach.',
+        updates: [
+          { date: '2024-01-01', time: '10:30 AM', status: 'Registered', description: 'Your complaint has been registered in our system' },
+          { date: '2024-01-02', time: '02:15 PM', status: 'Under Review', description: 'Our team has started reviewing your complaint' },
+          { date: '2024-01-04', time: '09:45 AM', status: 'In Progress', description: 'Technical team has been assigned to investigate' }
+        ]
+      },
+      'RAIL1704067200001': {
+        id: 'RAIL1704067200001',
+        status: 'Resolved',
+        statusClass: 'status-resolved',
+        submittedOn: '2023-12-28',
+        category: 'Cleanliness',
+        name: 'Priya Singh',
+        email: 'priya@email.com',
+        phone: '9876543211',
+        trainNumber: '12006',
+        trainName: 'Shatabdi Express',
+        boarding: 'New Delhi',
+        destination: 'Jaipur',
+        journeyDate: '2023-12-29',
+        class: '1A',
+        coach: 'A-08',
+        seat: '12',
+        description: 'The toilets in the coach were extremely dirty and unhygienic.',
+        updates: [
+          { date: '2023-12-28', time: '03:20 PM', status: 'Registered', description: 'Your complaint has been registered' },
+          { date: '2023-12-29', time: '11:00 AM', status: 'Under Review', description: 'Complaint has been escalated to management' },
+          { date: '2023-12-31', time: '05:30 PM', status: 'Resolved', description: 'Management has taken corrective action. Compensation credited to your account.' }
+        ]
+      },
+      'RAIL1704067200002': {
+        id: 'RAIL1704067200002',
+        status: 'Registered',
+        statusClass: 'status-registered',
+        submittedOn: '2024-01-10',
+        category: 'Staff Behavior',
+        name: 'Amit Patel',
+        email: 'amit@email.com',
+        phone: '9876543212',
+        trainNumber: '12951',
+        trainName: 'Mumbai Rajdhani',
+        boarding: 'Mumbai Central',
+        destination: 'Delhi Central',
+        journeyDate: '2024-01-11',
+        class: 'SL',
+        coach: 'B-05',
+        seat: '72',
+        description: 'Staff member was rude and unhelpful when asked for assistance.',
+        updates: [
+          { date: '2024-01-10', time: '08:45 PM', status: 'Registered', description: 'Your complaint has been registered' }
+        ]
+      }
+    };
+
+    // Initialize page
+    function initializePage() {
+      const lang = localStorage.getItem('language') || 'en';
+      updatePageLanguage(lang);
+      updateLanguageButtonState(lang);
+      
+      // Show user email
+      const userEmail = localStorage.getItem('userEmail');
+      document.getElementById('userEmailDisplay').textContent = 'Logged in as: ' + (userEmail || 'Not logged in');
+      
+      // Load complaints on page load
+      loadUserComplaints();
+    }
+
+    function toggleDebugMode() {
+      const debugInfo = document.getElementById('debugInfo');
+      debugInfo.style.display = debugInfo.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function updateDebugInfo(message) {
+      const debugContent = document.getElementById('debugContent');
+      debugContent.innerHTML += '<div>' + message + '</div>';
+      console.log(message);
+    }
+
+    function updatePageLanguage(lang) {
+      document.getElementById('pageTitle').textContent = t('trackTitle', lang);
+      document.getElementById('pageDesc').textContent = t('enterComplaintID', lang);
+      document.getElementById('dashboardLink').textContent = t('dashboard', lang);
+      document.getElementById('registerLink').textContent = t('registerNewComplaint', lang);
+      document.getElementById('trackLink').textContent = t('trackComplaintNav', lang);
+      document.getElementById('reportLink').textContent = t('reportTheftNav', lang);
+      document.getElementById('logoutLink').textContent = t('logout', lang);
+      
+      document.getElementById('complaintIdLabel').textContent = t('complaintID', lang);
+      document.getElementById('searchBtn').textContent = t('search', lang);
+      document.getElementById('recentTitle').textContent = t('recentActivity', lang);
+      
+      document.getElementById('complaintDetailsTitle').textContent = t('complaintID', lang) + ' - ' + (t('details', lang) || 'Details');
+      document.getElementById('complaintIdDetailLabel').textContent = t('complaintID', lang);
+      document.getElementById('statusLabel').textContent = t('status', lang);
+      document.getElementById('submittedOnLabel').textContent = t('submittedOn', lang);
+      document.getElementById('categoryDetailLabel').textContent = t('category', lang);
+      document.getElementById('nameLabel').textContent = t('name', lang);
+      document.getElementById('emailDetailLabel').textContent = t('email', lang);
+      document.getElementById('phoneDetailLabel').textContent = t('phone', lang);
+      document.getElementById('trainDetailLabel').textContent = t('trainNumber', lang);
+      document.getElementById('boardingDetailLabel').textContent = t('boarding', lang);
+      document.getElementById('destinationDetailLabel').textContent = t('destination', lang);
+      document.getElementById('journeyDateDetailLabel').textContent = t('journeyDate', lang);
+      document.getElementById('classDetailLabel').textContent = t('classCoach', lang);
+      document.getElementById('descriptionDetailLabel').textContent = t('description', lang);
+      document.getElementById('updatesTitle').textContent = t('updates', lang);
+      document.getElementById('chatBtnText').textContent = t('chatSupport', lang);
+      document.getElementById('downloadBtnText').textContent = t('download', lang) || 'Download Details';
+      document.getElementById('chatTitle').textContent = t('chatTitle', lang);
+      
+      document.getElementById('noResultsTitle').textContent = t('noComplaint', lang);
+      document.getElementById('noResultsText').textContent = t('checkComplaintId', lang) || 'Please check your complaint ID and try again';
+      document.getElementById('tryAgainBtn').textContent = t('tryAgain', lang) || 'Try Again';
+      
+      document.getElementById('footerCopy').textContent = t('copyright', lang);
+    }
+
+    function updateLanguageButtonState(lang) {
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.textContent === lang.toUpperCase()) {
+          btn.classList.add('active');
+        }
+      });
+    }
+
+    function switchLanguage(lang) {
+      localStorage.setItem('language', lang);
+      updatePageLanguage(lang);
+      updateLanguageButtonState(lang);
+    }
+
+    function loadUserComplaints() {
+      const userEmail = localStorage.getItem('userEmail');
+      
+      console.log('=== Direct Database Fetch ===');
+      console.log('User Email:', userEmail);
+      
+      if (!userEmail) {
+        alert('Please login first to view your complaints');
+        window.location.href = 'login-register.html';
+        return;
+      }
+
+      document.getElementById('loadingMessage').style.display = 'block';
+      document.getElementById('complaintsList').innerHTML = '';
+      document.getElementById('noComplaintsMessage').style.display = 'none';
+
+      // Direct database fetch
+      const endpoint = 'http://127.0.0.1:5000/api/get-user-complaints';
+      console.log('Endpoint:', endpoint);
+      console.log('Sending email:', userEmail);
+      updateDebugInfo('Fetching from: ' + endpoint);
+      
+      fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email: userEmail })
+      })
+        .then(response => {
+          console.log('Response status:', response.status);
+          updateDebugInfo('API Status: ' + response.status);
+          if (!response.ok) {
+            throw new Error('HTTP Error: ' + response.status);
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log('Response data:', data);
+          document.getElementById('loadingMessage').style.display = 'none';
+          
+          if (data.success && data.complaints && data.complaints.length > 0) {
+            console.log('✓ Found', data.complaints.length, 'complaints');
+            updateDebugInfo('✓ Found ' + data.complaints.length + ' complaints');
+            displayUserComplaints(data.complaints);
+            document.getElementById('complaintsList').style.display = 'block';
+            document.getElementById('noComplaintsMessage').style.display = 'none';
+          } else {
+            console.log('No complaints found');
+            updateDebugInfo('No complaints found for: ' + userEmail);
+            showNoComplaints();
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          updateDebugInfo('Error: ' + error.message);
+          document.getElementById('loadingMessage').style.display = 'none';
+          showNoComplaints();
+        });
+    }
+
+    function showNoComplaints() {
+      // Fallback: fetch ALL complaints to see if any exist
+      fetch(`http://127.0.0.1:5000/api/complaints/all`)
+        .then(res => res.json())
+        .then(allData => {
+          console.log('Total complaints in system:', allData.count);
+          console.log('All complaints:', allData.complaints);
+          updateDebugInfo('Total in DB: ' + allData.count + ' complaints');
+          
+          if (allData.complaints && allData.complaints.length > 0) {
+            console.log('Sample complaint user_email:', allData.complaints[0].user_email);
+            updateDebugInfo('Sample email in DB: ' + allData.complaints[0].user_email);
+            const userEmail = localStorage.getItem('userEmail');
+            updateDebugInfo('Your email: ' + userEmail);
+            updateDebugInfo('Match: ' + (allData.complaints[0].user_email === userEmail ? 'YES' : 'NO'));
+          }
+          
+          document.getElementById('complaintsList').style.display = 'none';
+          document.getElementById('noComplaintsMessage').style.display = 'block';
+        })
+        .catch(err => {
+          console.error('Error fetching all complaints:', err);
+          updateDebugInfo('Error: ' + err.message);
+          document.getElementById('complaintsList').style.display = 'none';
+          document.getElementById('noComplaintsMessage').style.display = 'block';
+        });
+    }
+
+    function getStatusColor(status) {
+      const statusLower = (status || 'registered').toLowerCase();
+      if (statusLower.includes('processing') || statusLower.includes('progress') || statusLower.includes('review') || statusLower.includes('under')) {
+        return { bg: '#ffe0b2', color: '#FFA500' };
+      } else if (statusLower.includes('completed') || statusLower.includes('resolved')) {
+        return { bg: '#c8e6c9', color: '#4CAF50' };
+      } else if (statusLower.includes('registered')) {
+        return { bg: '#e3f2fd', color: '#1976d2' };
+      }
+      return { bg: '#f0f0f0', color: '#666' };
+    }
+
+    function displayUserComplaints(complaints) {
+      const list = document.getElementById('complaintsList');
+      list.innerHTML = '';
+
+      complaints.forEach(complaint => {
+        const item = document.createElement('div');
+        item.style.cssText = 'background: white; border: 1px solid #ddd; padding: 1.5rem; border-radius: 8px; margin-bottom: 1rem; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.05);';
+        
+        item.onmouseover = () => {
+          item.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
+          item.style.transform = 'translateY(-2px)';
+        };
+        item.onmouseout = () => {
+          item.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)';
+          item.style.transform = 'translateY(0)';
+        };
+        
+        item.onclick = () => showComplaintDetail(complaint);
+
+        const date = new Date(complaint.created_at).toLocaleDateString();
+        const statusClass = 'status-' + (complaint.status || 'registered').toLowerCase().replace(' ', '-');
+        const colors = getStatusColor(complaint.status);
+        
+        item.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: start;">
+            <div style="flex: 1;">
+              <div style="font-size: 14px; color: #999; margin-bottom: 5px;">Complaint ID</div>
+              <div style="font-size: 18px; font-weight: bold; color: #333; margin-bottom: 10px;">${complaint.complaint_id || complaint.id}</div>
+              <div style="font-size: 13px; color: #666; margin-bottom: 8px;">
+                <strong>Category:</strong> ${complaint.category || 'N/A'}
+              </div>
+              <div style="font-size: 13px; color: #666; margin-bottom: 8px;">
+                <strong>Priority:</strong> ${complaint.priority || 'N/A'}
+              </div>
+              <div style="font-size: 13px; color: #999;">
+                <strong>Filed:</strong> ${date}
+              </div>
+            </div>
+            <div style="text-align: right;">
+              <span class="status-badge ${statusClass}" style="padding: 8px 12px; font-size: 14px; font-weight: bold; background: ${colors.bg}; color: ${colors.color}; display: inline-block; border-radius: 20px;">${complaint.status || 'Registered'}</span>
+              <div style="font-size: 11px; color: #999; margin-top: 10px;">Click to view details</div>
+            </div>
+          </div>
+        `;
+        list.appendChild(item);
+      });
+    }
+
+    function getSampleComplaints() {
+      return [
+        {
+          complaint_id: 'RAIL2601001',
+          category: 'Cleanliness',
+          priority: 'High',
+          status: 'In Progress',
+          created_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+          complaint_text: 'Train was not properly cleaned'
+        },
+        {
+          complaint_id: 'RAIL2601002',
+          category: 'Service Quality',
+          priority: 'Medium',
+          status: 'Registered',
+          created_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+          complaint_text: 'Staff was not helpful'
+        }
+      ];
+    }
+
+    function showComplaintDetail(complaint) {
+      const userEmail = localStorage.getItem('userEmail');
+      
+      console.log('Initial complaint clicked:', complaint);
+      
+      // Fetch detailed complaint from API
+      fetch(`http://127.0.0.1:5000/api/complaints/${complaint.complaint_id || complaint.id}`)
+        .then(response => response.json())
+        .then(data => {
+          console.log('API Response:', data);
+          if (data.success && data.complaint) {
+            console.log('Using API complaint:', data.complaint);
+            displayComplaintModal(data.complaint);
+          } else if (data.complaint) {
+            console.log('Using complaint from data (no success flag):', data.complaint);
+            displayComplaintModal(data.complaint);
+          } else {
+            console.log('Falling back to local complaint');
+            displayComplaintModal(complaint);
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching complaint details:', error);
+          displayComplaintModal(complaint);
+        });
+    }
+
+    function safeSetText(elementId, value) {
+      const element = document.getElementById(elementId);
+      if (element) {
+        element.textContent = value;
+        console.log(`✓ Set ${elementId}: ${value}`);
+      } else {
+        console.warn(`⚠️ Element not found: ${elementId}`);
+      }
+    }
+
+    function displayComplaintModal(complaint) {
+      console.log('📋 displayComplaintModal called with complaint:', complaint);
+      
+      const statusClass = 'status-' + (complaint.status || 'registered').toLowerCase().replace(' ', '-');
+      const colors = getStatusColor(complaint.status);
+      const date = new Date(complaint.created_at).toLocaleDateString();
+      
+      safeSetText('complaintIdDetail', complaint.complaint_id || complaint.id);
+      safeSetText('statusBadge', complaint.status || 'Registered');
+      safeSetText('submittedOnDetail', date);
+      safeSetText('categoryDetail', complaint.category || 'N/A');
+      safeSetText('priorityDetail', complaint.priority || 'N/A');
+      safeSetText('descriptionDetail', complaint.complaint_text || complaint.description);
+      
+      const statusBadge = document.getElementById('statusBadge');
+      if (statusBadge) {
+        statusBadge.className = 'status-badge ' + statusClass;
+        statusBadge.style.background = colors.bg;
+        statusBadge.style.color = colors.color;
+        statusBadge.style.padding = '8px 12px';
+        statusBadge.style.borderRadius = '20px';
+        statusBadge.style.display = 'inline-block';
+      }
+      
+      if (complaint.resolution) {
+        safeSetText('resolutionDetail', complaint.resolution);
+        const resSection = document.getElementById('resolutionSection');
+        if (resSection) resSection.style.display = 'block';
+      } else {
+        const resSection = document.getElementById('resolutionSection');
+        if (resSection) resSection.style.display = 'none';
+      }
+      
+      const detailsSection = document.getElementById('complaintDetailsSection');
+      if (detailsSection) {
+        detailsSection.style.display = 'block';
+        detailsSection.scrollIntoView({ behavior: 'smooth' });
+      }
+      showRatingSection(complaint);
+    }
+
+    function displayComplaintDetailsFromDB(complaint) {
+      const statusClass = 'status-' + complaint.status.toLowerCase().replace(' ', '-');
+      const date = new Date(complaint.created_at).toLocaleDateString();
+      
+      document.getElementById('complaintIdDetail').textContent = complaint.complaint_id;
+      document.getElementById('statusBadge').textContent = complaint.status;
+      document.getElementById('statusBadge').className = 'status-badge ' + statusClass;
+      document.getElementById('submittedOnDetail').textContent = date;
+      document.getElementById('categoryDetail').textContent = complaint.category || 'N/A';
+      document.getElementById('priorityDetail').textContent = complaint.priority || 'N/A';
+      document.getElementById('descriptionDetail').textContent = complaint.complaint_text;
+      
+      if (complaint.resolution) {
+        document.getElementById('resolutionDetail').textContent = complaint.resolution;
+        document.getElementById('resolutionSection').style.display = 'block';
+      } else {
+        document.getElementById('resolutionSection').style.display = 'none';
+      }
+      
+      showRatingSection(complaint);
+    }
+
+    function displayComplaintDetails(complaint) {
+      document.getElementById('complaintIdDetail').textContent = complaint.id;
+      document.getElementById('statusBadge').textContent = complaint.status;
+      document.getElementById('statusBadge').className = 'status-badge ' + complaint.statusClass;
+      document.getElementById('submittedOnDetail').textContent = new Date(complaint.submittedOn).toLocaleDateString();
+      document.getElementById('categoryDetail').textContent = complaint.category;
+      document.getElementById('nameDetail').textContent = complaint.name;
+      document.getElementById('emailDetail').textContent = complaint.email;
+      document.getElementById('phoneDetail').textContent = complaint.phone;
+      document.getElementById('trainDetail').textContent = complaint.trainNumber + ' - ' + complaint.trainName;
+      document.getElementById('boardingDetail').textContent = complaint.boarding;
+      document.getElementById('destinationDetail').textContent = complaint.destination;
+      document.getElementById('journeyDateDetail').textContent = new Date(complaint.journeyDate).toLocaleDateString();
+      document.getElementById('classDetail').textContent = complaint.class;
+      document.getElementById('descriptionDetail').textContent = complaint.description;
+      showRatingSection(complaint);
+
+      // Display timeline
+      displayTimeline(complaint.updates);
+    }
+
+    function displayTimeline(updates) {
+      const container = document.getElementById('timelineContainer');
+      container.innerHTML = '';
+
+      updates.forEach(update => {
+        const item = document.createElement('div');
+        item.className = 'timeline-item';
+        item.innerHTML = `
+          <div class="timeline-date">${update.date} at ${update.time}</div>
+          <div style="font-weight: 600; color: #333; margin-bottom: 0.25rem;">${update.status}</div>
+          <div class="timeline-text">${update.description}</div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    function hideComplaintDetails() {
+      document.getElementById('complaintDetailsSection').style.display = 'none';
+      document.getElementById('complaintIdInput').value = '';
+    }
+
+    function resetSearch() {
+      document.getElementById('complaintIdInput').value = '';
+      document.getElementById('complaintDetailsSection').style.display = 'none';
+      document.getElementById('noResultsMessage').style.display = 'none';
+    }
+
+    // Chatbot functions
+    function toggleChatbot() {
+      const container = document.getElementById('chatbotContainer');
+      const toggle = document.getElementById('chatbotToggle');
+      
+      if (container.style.display === 'none') {
+        container.style.display = 'flex';
+        toggle.style.display = 'none';
+        if (document.getElementById('chatbotMessages').innerHTML === '') {
+          initializeChatbot();
+        }
+      } else {
+        container.style.display = 'none';
+        toggle.style.display = 'flex';
+      }
+    }
+
+    function initializeChatbot() {
+      const messages = document.getElementById('chatbotMessages');
+      const lang = localStorage.getItem('language') || 'en';
+      const message = document.createElement('div');
+      message.className = 'message bot';
+      message.innerHTML = `<div class="message-bubble">${t('hello', lang)}</div>`;
+      messages.appendChild(message);
+    }
+
+    function sendChatMessage() {
+      const input = document.getElementById('chatInput');
+      const message = input.value.trim();
+      
+      if (!message) return;
+
+      const messages = document.getElementById('chatbotMessages');
+      const lang = localStorage.getItem('language') || 'en';
+
+      // Add user message
+      const userMsg = document.createElement('div');
+      userMsg.className = 'message user';
+      userMsg.innerHTML = `<div class="message-bubble">${message}</div>`;
+      messages.appendChild(userMsg);
+
+      // Add bot response
+      setTimeout(() => {
+        const botMsg = document.createElement('div');
+        botMsg.className = 'message bot';
+        const responses = [
+          'I can help you track your complaint status.',
+          'Please provide your complaint ID for quick assistance.',
+          'Our team is available 24/7 to help you.',
+          'You can also contact us via email at support@railwaycomplaints.com'
+        ];
+        const response = responses[Math.floor(Math.random() * responses.length)];
+        botMsg.innerHTML = `<div class="message-bubble">${response}</div>`;
+        messages.appendChild(botMsg);
+        messages.scrollTop = messages.scrollHeight;
+      }, 500);
+
+      input.value = '';
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    function handleChatKeypress(event) {
+      if (event.key === 'Enter') {
+        sendChatMessage();
+      }
+    }
+
+    function openChat() {
+      document.getElementById('chatbotContainer').style.display = 'flex';
+      document.getElementById('chatbotToggle').style.display = 'none';
+      document.getElementById('chatInput').focus();
+    }
+
+    function downloadComplaintPDF() {
+      const complaintId = document.getElementById('complaintIdDetail').textContent;
+      alert('Downloading complaint details for ' + complaintId + '...');
+    }
+
+    // Rating and Feedback Functions
+    let currentRating = 0;
+    let currentComplaintId = null;
+
+    function setRating(rating) {
+      currentRating = rating;
+      const stars = document.querySelectorAll('.star');
+      console.log(`⭐ Rating set to: ${rating}/5`);
+      
+      stars.forEach((star, index) => {
+        if (index < rating) {
+          star.classList.add('selected');
+          star.style.color = '#FFD700';
+          star.style.textShadow = '0 0 8px rgba(255,215,0,0.9)';
+        } else {
+          star.classList.remove('selected');
+          star.style.color = '#ddd';
+          star.style.textShadow = 'none';
+        }
+      });
+      
+      const ratingValueEl = document.getElementById('ratingValue');
+      if (ratingValueEl) {
+        ratingValueEl.textContent = rating + ' / 5';
+      } else {
+        console.warn('⚠️ ratingValue element not found');
+      }
+    }
+
+    function updateCharCount() {
+      const textEl = document.getElementById('feedbackText');
+      const countEl = document.getElementById('charCountNum');
+      
+      if (textEl && countEl) {
+        const count = textEl.value.length;
+        countEl.textContent = count;
+        console.log(`📝 Character count updated: ${count}/500`);
+      }
+    }
+
+    function resetFeedbackForm() {
+      currentRating = 0;
+      const feedbackText = document.getElementById('feedbackText');
+      const ratingValue = document.getElementById('ratingValue');
+      const charCountNum = document.getElementById('charCountNum');
+      const feedbackSuccessMsg = document.getElementById('feedbackSuccessMsg');
+      
+      if (feedbackText) feedbackText.value = '';
+      if (ratingValue) ratingValue.textContent = '';
+      if (charCountNum) charCountNum.textContent = '0';
+      
+      const stars = document.querySelectorAll('.star');
+      stars.forEach(star => {
+        star.classList.remove('selected');
+        star.style.color = '#ddd';
+        star.style.textShadow = 'none';
+      });
+      
+      if (feedbackSuccessMsg) feedbackSuccessMsg.style.display = 'none';
+    }
+
+    function submitFeedback() {
+      if (currentRating === 0) {
+        alert('Please select a rating before submitting feedback.');
+        return;
+      }
+
+      const feedbackTextEl = document.getElementById('feedbackText');
+      const complaintIdEl = document.getElementById('complaintIdDetail');
+      
+      if (!feedbackTextEl || !complaintIdEl) {
+        console.error('❌ Missing required form elements');
+        alert('Error: Required form elements not found');
+        return;
+      }
+
+      const feedbackText = feedbackTextEl.value;
+      const complaintId = complaintIdEl.textContent;
+
+      console.log('📝 Submitting feedback for complaint:', complaintId);
+      
+      fetch('http://localhost:5000/api/complaints/' + complaintId + '/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          rating: currentRating,
+          feedback: feedbackText,
+          complaint_id: complaintId
+        })
+      })
+      .then(r => r.json())
+      .then(data => {
+        console.log('✓ Feedback submission response:', data);
+        if (data.success) {
+          const successMsg = document.getElementById('feedbackSuccessMsg');
+          if (successMsg) {
+            successMsg.style.display = 'block';
+            setTimeout(() => {
+              loadUserComplaints();
+            }, 2000);
+          }
+        } else {
+          alert('Error submitting feedback: ' + data.message);
+        }
+      })
+      .catch(err => {
+        console.error('❌ Error:', err);
+        alert('Error submitting feedback: ' + err.message);
+      });
+    }
+
+    function showRatingSection(complaint) {
+      const section = document.getElementById('ratingFeedbackSection');
+      
+      if (!section) {
+        console.error('❌ ratingFeedbackSection element not found in DOM');
+        return;
+      }
+      
+      // Debug: Log the complaint status
+      console.log('=== FEEDBACK SECTION DEBUG ===');
+      console.log('Full complaint object:', complaint);
+      console.log('Complaint Status:', complaint.status);
+      console.log('Complaint Status Type:', typeof complaint.status);
+      console.log('Status Value Length:', complaint.status ? complaint.status.length : 'null');
+      
+      // Check for "Completed" status (case-insensitive, trim whitespace)
+      const statusLower = complaint.status ? complaint.status.trim().toLowerCase() : '';
+      const completedStatus = statusLower === 'completed';
+      
+      console.log('Status After Lowercase/Trim:', statusLower);
+      console.log('Completed Status Check:', completedStatus);
+      console.log('Section Element:', section);
+      
+      if (completedStatus) {
+        console.log('✓ SHOWING FEEDBACK SECTION');
+        section.style.display = 'block';
+        resetFeedbackForm();
+        
+        // Check if feedback already exists
+        if (complaint.feedback && complaint.feedback.rating) {
+          displaySubmittedFeedback(complaint.feedback);
+          const submitBtn = document.getElementById('submitFeedbackBtn');
+          const feedbackText = document.getElementById('feedbackText');
+          if (submitBtn) submitBtn.disabled = true;
+          if (feedbackText) feedbackText.disabled = true;
+        } else {
+          const existingFeedback = document.getElementById('existingFeedback');
+          const submitBtn = document.getElementById('submitFeedbackBtn');
+          const feedbackText = document.getElementById('feedbackText');
+          if (existingFeedback) existingFeedback.style.display = 'none';
+          if (submitBtn) submitBtn.disabled = false;
+          if (feedbackText) feedbackText.disabled = false;
+        }
+      } else {
+        console.log('✗ HIDING FEEDBACK SECTION - Status is:', statusLower);
+        section.style.display = 'none';
+      }
+    }
+
+    function displaySubmittedFeedback(feedback) {
+      const existingFeedback = document.getElementById('existingFeedback');
+      const submittedRatingDisplay = document.getElementById('submittedRatingDisplay');
+      const submittedFeedbackDisplay = document.getElementById('submittedFeedbackDisplay');
+      
+      if (!existingFeedback || !submittedRatingDisplay || !submittedFeedbackDisplay) {
+        console.error('❌ Missing feedback display elements');
+        return;
+      }
+      
+      existingFeedback.style.display = 'block';
+      
+      // Display rating
+      const ratingStars = '⭐'.repeat(feedback.rating) + '☆'.repeat(5 - feedback.rating);
+      submittedRatingDisplay.innerHTML = ratingStars + ' (' + feedback.rating + '/5)';
+      
+      // Display feedback text
+      submittedFeedbackDisplay.textContent = feedback.feedback || 'No additional feedback provided.';
+      
+      console.log('✓ Displayed submitted feedback with rating:', feedback.rating);
+    }
+
+    function initializeRatingForm() {
+      const feedbackTextarea = document.getElementById('feedbackText');
+      if (feedbackTextarea) {
+        feedbackTextarea.addEventListener('input', updateCharCount);
+      }
+    }
+
+    // Initialize on page load
+    window.addEventListener('DOMContentLoaded', function() {
+      initializePage();
+      initializeRatingForm();
+      setActiveTab();
+    });
+
+    // Set active tab on current page
+    function setActiveTab() {
+      const currentPage = window.location.pathname.split('/').pop() || 'dashboard.html';
+      const navLinks = document.querySelectorAll('.nav-link');
+      navLinks.forEach(link => {
+        link.classList.remove('active');
+        const href = link.getAttribute('href').split('/').pop();
+        if (href === currentPage || (currentPage === '' && href === 'dashboard.html')) {
+          link.classList.add('active');
+        }
+      });
+    }
+  </script>
+</body>
+</html>
+
+  <!-- Bootstrap JS for dropdown functionality -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

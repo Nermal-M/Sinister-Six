@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bag Detection & Tracking System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">🎥 Bag Tracking System</div>
+            <ul class="nav-menu">
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="main-content">
+            <h1>Bag Detection & Tracking System</h1>
+            <p class="subtitle">Upload a video to detect and track bags</p>
+
+            <div class="steps-container">
+                <!-- Step 1: Upload Video -->
+                <div class="step">
+                    <div class="step-header">
+                        <span class="step-number">1</span>
+                        <h2>Upload Video</h2>
+                    </div>
+                    <div class="step-content">
+                        <div class="upload-area" id="uploadArea">
+                            <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M12 2v20M2 12h20M7 7l5-5 5 5M7 17l5 5 5-5"></path>
+                            </svg>
+                            <p>Drag & drop your video here or click to select</p>
+                            <p class="upload-hint">Supported formats: MP4, AVI, MOV, MKV (Max 500MB)</p>
+                            <input type="file" id="videoInput" accept="video/*" style="display: none;">
+                        </div>
+                        <div id="uploadStatus" style="display: none;">
+                            <div class="status-message" id="statusMessage"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Detect Bags -->
+                <div class="step">
+                    <div class="step-header">
+                        <span class="step-number">2</span>
+                        <h2>Detect Bags in First Frame</h2>
+                    </div>
+                    <div class="step-content" id="detectStep" style="display: none;">
+                        <button class="btn btn-primary" id="detectBtn">Detect Bags</button>
+                        <div id="detectionResults" style="display: none;" class="detection-results">
+                            <p id="detectionInfo"></p>
+                            <div id="bagsList" class="bags-list"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Select Bag -->
+                <div class="step">
+                    <div class="step-header">
+                        <span class="step-number">3</span>
+                        <h2>Select Bag to Track</h2>
+                    </div>
+                    <div class="step-content" id="selectStep" style="display: none;">
+                        <div id="bagSelector" class="bag-selector"></div>
+                    </div>
+                </div>
+
+                <!-- Step 4: Track Bag -->
+                <div class="step">
+                    <div class="step-header">
+                        <span class="step-number">4</span>
+                        <h2>Process & Track</h2>
+                    </div>
+                    <div class="step-content" id="trackStep" style="display: none;">
+                        <button class="btn btn-success" id="trackBtn">Start Tracking</button>
+                        <div id="trackingProgress" style="display: none;" class="progress-container">
+                            <div class="progress-bar">
+                                <div id="progressFill" class="progress-fill"></div>
+                            </div>
+                            <p id="progressText">Processing...</p>
+                        </div>
+                        <div id="trackingResults" style="display: none;" class="tracking-results">
+                            <h3>Tracking Complete!</h3>
+                            <div id="trackingStats"></div>
+                            <div class="download-section">
+                                <a id="downloadLink" class="btn btn-download" download>Download Tracked Video</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 5: AI Video Summary -->
+                <div class="step">
+                    <div class="step-header">
+                        <span class="step-number">5</span>
+                        <h2>Video Analysis & Summary</h2>
+                    </div>
+                    <div class="step-content" id="summaryStep" style="display: none;">
+                        <button class="btn btn-primary" id="summarizeBtn">Generate Summary</button>
+                        <div id="summaryProgress" style="display: none;" class="progress-container">
+                            <div class="progress-bar">
+                                <div id="summaryProgressFill" class="progress-fill"></div>
+                            </div>
+                            <p id="summaryProgressText">Analyzing video...</p>
+                        </div>
+                        <div id="summaryResults" style="display: none;" class="summary-results">
+                            <h3>Generated Summary</h3>
+                            <div id="summaryText" class="summary-text"></div>
+                            <div id="summaryStats" class="summary-stats"></div>
+                            <div class="download-section">
+                                <button id="downloadReport" class="btn btn-download">Download Report</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; Sinister Six </p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/detection.js') }}"></script>
+</body>
+</html>

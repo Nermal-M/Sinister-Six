@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register Complaint - RailKural</title>
+  <link rel="stylesheet" href="/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/multilingual.css">
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark">
+    <a class="navbar-brand" href="/dashboard.html">🚆 RailKural</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ml-auto">
+        <li class="nav-item"><a class="nav-link" href="/dashboard.html" id="dashboardLink">Dashboard</a></li>
+        <li class="nav-item"><a class="nav-link" href="/register-complaint.html" id="registerLink">Register New Complaint</a></li>
+        <li class="nav-item"><a class="nav-link" href="/track-complaint.html" id="trackLink">Track Complaint</a></li>
+        <li class="nav-item"><a class="nav-link" href="/track-train.html" id="trackTrainLink">Track Train</a></li>
+        <li class="nav-item"><a class="nav-link" href="/report-theft-lost.html" id="reportLink">Report Theft</a></li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown">
+            <span class="user-avatar-small">👤</span>
+          </a>
+          <div class="dropdown-menu dropdown-menu-right" id="userDropdownMenu">
+            <a class="dropdown-item" href="/user-profile.html" id="profileLink">My Profile</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="/login-register.html" id="logoutLink">Logout</a>
+          </div>
+        </li>
+        <li class="nav-item language-switcher">
+          <button class="lang-btn" onclick="switchLanguage('en')">EN</button>
+          <button class="lang-btn" onclick="switchLanguage('ta')">TA</button>
+          <button class="lang-btn" onclick="switchLanguage('hi')">HI</button>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="page-header">
+    <div class="container">
+      <h1 id="pageTitle">Register a New Complaint</h1>
+      <p id="pageDesc">Please provide detailed information about your complaint</p>
+    </div>
+  </div>
+
+  <main class="container py-4">
+    <div class="row">
+      <div class="col-md-8 offset-md-2">
+        <div class="card">
+          <div class="card-body">
+            <form id="complaintForm">
+              <!-- Personal Information -->
+              <div class="form-section">
+                <h5 id="personalInfoTitle" style="color: #d32f2f; margin-bottom: 1.5rem; border-bottom: 2px solid #d32f2f; padding-bottom: 0.5rem;">1. Personal Information</h5>
+                
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label id="nameLabel">Full Name</label>
+                      <input type="text" class="form-control" id="fullName" required>
+                      <span class="error-message" id="nameError"></span>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label id="pnrLabel">PNR Number (if applicable)</label>
+                      <input type="text" class="form-control" id="pnr">
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Complaint Details -->
+              <div class="form-section">
+                <h5 id="complaintDetailsTitle" style="color: #d32f2f; margin-bottom: 1.5rem; margin-top: 2rem; border-bottom: 2px solid #d32f2f; padding-bottom: 0.5rem;">2. Complaint Details</h5>
+                
+                <div class="form-group">
+                  <label id="descriptionLabel">Complaint Description</label>
+                  <textarea class="form-control" id="description" rows="5" placeholder="Please describe your complaint in detail..." required onchange="autoClassifyComplaint()"></textarea>
+                  <small style="color: #666; display: block; margin-top: 0.5rem;" id="autoClassifyHint">The system will automatically classify your complaint using AI.</small>
+                </div>
+
+                <!-- Auto-Classification Results -->
+                <div id="classificationResults" style="display: none; margin-top: 1.5rem; padding: 1rem; background: #f9f9f9; border-left: 4px solid #4CAF50; border-radius: 4px;">
+                  <h6 id="autoClassifyTitle" style="color: #333; margin-bottom: 1rem;">✓ Complaint Automatically Classified</h6>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div style="padding: 0.75rem; background: white; border-radius: 4px; border: 1px solid #ddd;">
+                        <strong id="categoryLabelResult">Category:</strong>
+                        <div id="categoryResult" style="font-size: 1.1rem; color: #d32f2f; margin-top: 0.5rem;">-</div>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div style="padding: 0.75rem; background: white; border-radius: 4px; border: 1px solid #ddd;">
+                        <strong id="priorityLabelResult">Priority:</strong>
+                        <div id="priorityResult" style="font-size: 1.1rem; color: #ff6f00; margin-top: 0.5rem;">-</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 1rem;">
+                  <label id="categoryLabel">Detected Category (Auto)</label>
+                  <input type="text" class="form-control" id="category" readonly style="background-color: #f5f5f5; cursor: not-allowed;">
+                  <small class="auto-filled-text" style="color: #999;">Auto-filled by AI</small>
+                </div>
+
+                <div class="form-group">
+                  <label id="priorityLabel">Detected Priority (Auto)</label>
+                  <input type="text" class="form-control" id="priority" readonly style="background-color: #f5f5f5; cursor: not-allowed;">
+                  <small class="auto-filled-text" style="color: #999;">Auto-filled by AI</small>
+                </div>
+              </div>
+
+              <!-- Evidence -->
+              <div class="form-section">
+                <h5 id="evidenceTitle" style="color: #d32f2f; margin-bottom: 1.5rem; margin-top: 2rem; border-bottom: 2px solid #d32f2f; padding-bottom: 0.5rem;">3. Supporting Documents</h5>
+                
+                <div class="form-group">
+                  <label id="attachmentLabel">Attach Documents/Images</label>
+                  <div style="border: 2px dashed #ddd; border-radius: 4px; padding: 2rem; text-align: center; cursor: pointer;" id="dropZone">
+                    <p id="dragDropText">Drag & drop files here or click to select</p>
+                    <input type="file" id="attachment" multiple accept="image/*,application/pdf" style="display: none;">
+                  </div>
+                  <small id="fileHelpText" style="display: block; color: #666; margin-top: 0.5rem;">Supported formats: JPG, PNG, PDF (Max 5MB per file)</small>
+                  <div id="fileList" style="margin-top: 1rem;"></div>
+                </div>
+              </div>
+
+              <!-- Submit Button -->
+              <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                <button type="submit" class="btn btn-primary" style="flex: 1;" id="submitBtn">Submit Complaint</button>
+                <button type="reset" class="btn btn-secondary" style="flex: 1;" id="resetBtn">Clear Form</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Success Message -->
+        <div id="successMessage" class="alert alert-success" style="display: none; margin-top: 2rem;">
+          <h4 id="successTitle">Complaint Submitted Successfully! ✓</h4>
+          <p id="successText">Your complaint has been registered. Your complaint ID is:</p>
+          <h3 id="complaintIdDisplay" style="color: #d32f2f; margin-top: 1rem;"></h3>
+          <p id="trackingInfo">Please save this ID for tracking your complaint status.</p>
+          <a href="/track-complaint.html" class="btn btn-primary" id="trackBtn">Track Your Complaint</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="/js/translations.js"></script>
+  <script>
+    // Initialize page
+    function initializePage() {
+      const lang = localStorage.getItem('language') || 'en';
+      updatePageLanguage(lang);
+      updateLanguageButtonState(lang);
+      setupFormHandlers();
+    }
+
+    function updatePageLanguage(lang) {
+      const setText = (id, key, prefix = '') => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = prefix + t(key, lang);
+      };
+
+      setText('pageTitle', 'complaintTitle');
+      setText('pageDesc', 'pageDesc');
+      setText('dashboardLink', 'dashboard');
+      setText('registerLink', 'registerNewComplaint');
+      setText('trackLink', 'trackComplaintNav');
+      setText('trackTrainLink', 'trackTrainNav');
+      setText('reportLink', 'reportTheftNav');
+      setText('logoutLink', 'logout');
+
+      setText('personalInfoTitle', 'personalInformation', '1. ');
+      setText('nameLabel', 'name');
+      setText('pnrLabel', 'pnrOptional');
+
+      setText('complaintDetailsTitle', 'complaintDetails', '2. ');
+      setText('descriptionLabel', 'description');
+      document.getElementById('description').setAttribute('placeholder', t('complaintDescriptionPlaceholder', lang));
+      setText('categoryLabel', 'detectedCategoryAuto');
+      setText('priorityLabel', 'detectedPriorityAuto');
+      const categoryLabelResult = document.getElementById('categoryLabelResult');
+      if (categoryLabelResult) categoryLabelResult.textContent = t('category', lang) + ':';
+      const priorityLabelResult = document.getElementById('priorityLabelResult');
+      if (priorityLabelResult) priorityLabelResult.textContent = t('priority', lang) + ':';
+      setText('autoClassifyHint', 'autoClassifyHint');
+      setText('autoClassifyTitle', 'autoClassifyTitle');
+      document.querySelectorAll('.auto-filled-text').forEach(el => {
+        el.textContent = t('autoFilledByAI', lang);
+      });
+
+      setText('evidenceTitle', 'supportingDocuments', '3. ');
+      setText('attachmentLabel', 'attachment');
+      setText('dragDropText', 'dragDropFiles');
+      setText('fileHelpText', 'supportedFormatsHint');
+
+      setText('submitBtn', 'submitComplaint');
+      setText('resetBtn', 'clearForm');
+
+      setText('successTitle', 'successTitle');
+      setText('successText', 'successText');
+      setText('trackingInfo', 'trackingInfo');
+      setText('trackBtn', 'trackBtnText');
+    }
+
+    function updateLanguageButtonState(lang) {
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.textContent === lang.toUpperCase()) {
+          btn.classList.add('active');
+        }
+      });
+    }
+
+    function switchLanguage(lang) {
+      localStorage.setItem('language', lang);
+      updatePageLanguage(lang);
+      updateLanguageButtonState(lang);
+    }
+
+    function setupFormHandlers() {
+      // File upload handlers
+      const dropZone = document.getElementById('dropZone');
+      const fileInput = document.getElementById('attachment');
+
+      dropZone.addEventListener('click', () => fileInput.click());
+
+      dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.style.background = '#f0f0f0';
+      });
+
+      dropZone.addEventListener('dragleave', () => {
+        dropZone.style.background = '#fff';
+      });
+
+      dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.style.background = '#fff';
+        fileInput.files = e.dataTransfer.files;
+        displayFiles();
+      });
+
+      fileInput.addEventListener('change', displayFiles);
+
+      // Form submission
+      document.getElementById('complaintForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const lang = localStorage.getItem('language') || 'en';
+
+        // Get values
+        const description = document.getElementById('description').value.trim();
+        const category = document.getElementById('category').value.trim();
+        const priority = document.getElementById('priority').value.trim();
+
+        // Validate that we have a complaint
+        if (!description) {
+          alert(t('descriptionRequired', lang));
+          document.getElementById('description').focus();
+          return;
+        }
+
+        // If classification hasn't run, try to classify now
+        if (!category || !priority) {
+          alert(t('waitForClassification', lang));
+          document.getElementById('description').focus();
+          return;
+        }
+
+        // Get user email from session
+        const userEmail = localStorage.getItem('userEmail');
+        if (!userEmail) {
+          alert(t('loginToSubmit', lang));
+          window.location.href = '/login-register.html';
+          return;
+        }
+
+        // Show loading state
+        const submitBtn = document.getElementById('submitBtn');
+        const originalText = submitBtn.textContent;
+        submitBtn.textContent = t('submitting', lang);
+        submitBtn.disabled = true;
+
+        // Prepare complaint data
+        const complaintData = {
+          user_email: userEmail,
+          pnr: document.getElementById('pnr').value || 'N/A',
+          complaint_text: description,
+          category: category,
+          priority: priority
+        };
+
+        console.log('Submitting complaint:', complaintData);
+
+        try {
+          // Submit to MongoDB via API
+          const response = await fetch('http://localhost:5000/api/complaints/submit', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(complaintData)
+          });
+
+          console.log('Response status:', response.status);
+          const data = await response.json();
+          console.log('Response data:', data);
+
+          if (response.ok && data.success) {
+            // Get department info
+            const department = data.department || 'Complaints Division';
+            
+            console.log('✅ Complaint submitted successfully!');
+            console.log('📍 Forwarded to: ' + department);
+            console.log('📝 Complaint ID: ' + data.complaint_id);
+            
+            // Note: Staff dashboard will see this automatically through polling
+            // The notification system polls every 5 seconds for new complaints
+
+            // Hide form and show success message (after a short delay)
+            setTimeout(() => {
+              document.getElementById('complaintForm').style.display = 'none';
+              document.getElementById('successMessage').style.display = 'block';
+              document.getElementById('complaintIdDisplay').textContent = data.complaint_id;
+
+              // Also store in localStorage for local access
+              let complaints = JSON.parse(localStorage.getItem('complaints')) || [];
+              complaints.push({
+                complaintId: data.complaint_id,
+                ...complaintData,
+                submitDate: new Date().toISOString(),
+                status: data.status,
+                department: department
+              });
+              localStorage.setItem('complaints', JSON.stringify(complaints));
+
+              // Scroll to success message
+              document.getElementById('successMessage').scrollIntoView({ behavior: 'smooth' });
+            }, 500);
+
+            console.log('✓ Complaint submitted to MongoDB:', data);
+          } else {
+            const errorMsg = data.error || 'Unknown error';
+            alert(t('error', lang) + ': ' + errorMsg);
+            console.error('API Error:', data);
+            submitBtn.textContent = t('submitComplaint', lang);
+            submitBtn.disabled = false;
+          }
+        } catch (error) {
+          console.error('Submission error:', error);
+          console.error('Error stack:', error.stack);
+          alert(t('error', lang) + ': ' + error.message + '\n\nPlease check:\n1. API server is running on port 5000\n2. You are logged in\n3. Browser console for details');
+          submitBtn.textContent = t('submitComplaint', lang);
+          submitBtn.disabled = false;
+        }
+      });
+
+      // Reset form
+      document.getElementById('resetBtn').addEventListener('click', function() {
+        document.getElementById('fileList').innerHTML = '';
+      });
+    }
+
+    function displayFiles() {
+      const files = document.getElementById('attachment').files;
+      const lang = localStorage.getItem('language') || 'en';
+      const fileList = document.getElementById('fileList');
+      fileList.innerHTML = '';
+
+      Array.from(files).forEach((file, index) => {
+        const fileItem = document.createElement('div');
+        fileItem.style.cssText = 'background: #f5f5f5; padding: 0.75rem; border-radius: 4px; margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center;';
+        fileItem.innerHTML = `
+          <span>${file.name} (${(file.size / 1024).toFixed(2)} KB)</span>
+          <button type="button" class="btn btn-sm btn-danger" onclick="removeFile(${index})" style="padding: 0.25rem 0.75rem; font-size: 0.75rem;">${t('removeFile', lang)}</button>
+        `;
+        fileList.appendChild(fileItem);
+      });
+    }
+
+    function removeFile(index) {
+      const fileInput = document.getElementById('attachment');
+      const dataTransfer = new DataTransfer();
+      
+      Array.from(fileInput.files).forEach((file, i) => {
+        if (i !== index) dataTransfer.items.add(file);
+      });
+      
+      fileInput.files = dataTransfer.files;
+      displayFiles();
+    }
+
+    // Classification timeout
+    let classificationTimeout;
+
+    async function autoClassifyComplaint() {
+      const complaintText = document.getElementById('description').value.trim();
+      const pnr = document.getElementById('pnr').value.trim();
+      
+      // Clear previous timeout
+      if (classificationTimeout) {
+        clearTimeout(classificationTimeout);
+      }
+
+      // Only classify if complaint has meaningful text (minimum 10 characters)
+      if (complaintText.length < 10) {
+        document.getElementById('classificationResults').style.display = 'none';
+        return;
+      }
+
+      // Show loading state
+      document.getElementById('classificationResults').style.display = 'block';
+      const lang = localStorage.getItem('language') || 'en';
+      document.getElementById('categoryResult').textContent = t('classificationAnalyzing', lang);
+      document.getElementById('priorityResult').textContent = t('classificationAnalyzing', lang);
+
+      // Debounce: Wait 500ms after user stops typing
+      classificationTimeout = setTimeout(async () => {
+        try {
+          const response = await fetch('http://localhost:5000/api/classify', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              pnr: pnr,
+              complaint: complaintText
+            })
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const result = await response.json();
+
+          if (result.success) {
+            // Display category
+            document.getElementById('categoryResult').textContent = result.category.predicted;
+
+            // Display priority
+            document.getElementById('priorityResult').textContent = result.priority.predicted;
+
+            // Fill hidden input fields for form submission
+            document.getElementById('category').value = result.category.predicted;
+            document.getElementById('priority').value = result.priority.predicted;
+
+            // Color code priority
+            const priorityElement = document.getElementById('priorityResult');
+            if (result.priority.predicted.toLowerCase().includes('high')) {
+              priorityElement.style.color = '#d32f2f';
+            } else if (result.priority.predicted.toLowerCase().includes('medium')) {
+              priorityElement.style.color = '#ff6f00';
+            } else {
+              priorityElement.style.color = '#4CAF50';
+            }
+
+            document.getElementById('classificationResults').style.display = 'block';
+          } else {
+            console.error('Classification failed:', result.error);
+            document.getElementById('categoryResult').textContent = t('classificationError', lang);
+            document.getElementById('priorityResult').textContent = t('classificationError', lang);
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          document.getElementById('categoryResult').textContent = t('classificationApiUnavailable', lang);
+          document.getElementById('priorityResult').textContent = t('classificationApiUnavailable', lang);
+          document.getElementById('classificationResults').style.display = 'block';
+        }
+      }, 500);
+    }
+
+    // Initialize on page load
+    window.addEventListener('DOMContentLoaded', initializePage);
+
+    // Set active tab on current page
+    function setActiveTab() {
+      const currentPage = window.location.pathname.split('/').pop() || 'dashboard.html';
+      const navLinks = document.querySelectorAll('.nav-link');
+      navLinks.forEach(link => {
+        link.classList.remove('active');
+        const href = link.getAttribute('href').split('/').pop();
+        if (href === currentPage || (currentPage === '' && href === 'dashboard.html')) {
+          link.classList.add('active');
+        }
+      });
+    }
+
+    window.addEventListener('DOMContentLoaded', setActiveTab);
+  </script>
+  
+  <!-- Load notifications manager LAST to ensure DOM is ready -->
+  <script src="/js/notifications.js" defer></script>
+</body>
+</html>
+
+  <!-- Bootstrap JS for dropdown functionality -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

@@ -1,0 +1,2109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Department Dashboard - RailKural</title>
+  <link rel="stylesheet" href="/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/css/multilingual.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f5f7fa;
+    }
+
+    .navbar {
+      background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      padding: 1rem 0;
+    }
+
+    .navbar-brand {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: white !important;
+    }
+
+    .nav-link {
+      color: rgba(255,255,255,0.8) !important;
+      margin-left: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .nav-link:hover {
+      color: white !important;
+    }
+
+    .navbar-logout {
+      background: rgba(255,255,255,0.2);
+      border: 1px solid white;
+      border-radius: 5px;
+      padding: 5px 15px !important;
+      margin-left: 1rem;
+    }
+
+    .page-header {
+      background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+      color: white;
+      padding: 2rem 0;
+      margin-bottom: 2rem;
+    }
+
+    .page-header h1 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .header-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      opacity: 0.9;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .card {
+      border: none;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+      margin-bottom: 2rem;
+      transition: all 0.3s ease;
+    }
+
+    .card:hover {
+      box-shadow: 0 5px 20px rgba(0,0,0,0.12);
+    }
+
+    .card-header {
+      background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+      color: white;
+      border-radius: 10px 10px 0 0 !important;
+      padding: 1.5rem;
+      border: none;
+    }
+
+    .card-header h2 {
+      margin: 0;
+      font-size: 1.3rem;
+      font-weight: 600;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 10px;
+      text-align: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+      border-left: 4px solid;
+    }
+
+    .stat-card.pending { border-left-color: #f59e0b; }
+    .stat-card.inprogress { border-left-color: #3b82f6; }
+    .stat-card.resolved { border-left-color: #10b981; }
+    .stat-card.closed { border-left-color: #0A1A44; }
+
+    .stat-number {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+      color: #666;
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    .pending { color: #f59e0b; }
+    .inprogress { color: #3b82f6; }
+    .resolved { color: #10b981; }
+    .closed { color: #0A1A44; }
+
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .chart-container {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+      position: relative;
+      height: 350px;
+    }
+
+    .chart-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: #333;
+    }
+
+    .month-selector {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+      margin-bottom: 2rem;
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .month-selector label {
+      font-weight: 600;
+      color: #333;
+      margin: 0;
+    }
+
+    .month-selector input,
+    .month-selector select {
+      padding: 10px 15px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    .month-selector input:focus,
+    .month-selector select:focus {
+      outline: none;
+      border-color: #1e40af;
+      box-shadow: 0 0 0 3px rgba(30,64,175,0.1);
+    }
+
+    .complaint-table {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      background: #f0f0f0;
+      padding: 1rem;
+      text-align: left;
+      font-weight: 600;
+      color: #333;
+      border-bottom: 2px solid #e0e0e0;
+    }
+
+    td {
+      padding: 1rem;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    tbody tr:hover {
+      background: #f9f9f9;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 0.4rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .status-pending {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .status-progress {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+
+    .status-resolved {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .status-closed {
+      background: #e0e7ff;
+      color: #3730a3;
+    }
+
+    /* Dynamic status colors for Recent Complaints */
+    .status-completed {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .status-processing {
+      background: #fef08a;
+      color: #854d0e;
+    }
+
+    .status-registered {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+
+    .progress-bar {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .progress-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .progress-color {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .btn-action {
+      background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 0.9rem;
+    }
+
+    .btn-action:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(30,64,175,0.3);
+      color: white;
+    }
+
+    .language-selector {
+      margin-left: auto;
+      display: flex;
+      gap: 5px;
+    }
+
+    .lang-btn {
+      background: rgba(255,255,255,0.2);
+      color: white;
+      border: 1px solid white;
+      padding: 5px 10px;
+      border-radius: 3px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+
+    .lang-btn.active {
+      background: white;
+      color: #1e40af;
+    }
+
+    .complaint-trend {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .trend-card {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+
+    .trend-title {
+      font-size: 0.95rem;
+      color: #666;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+
+    .trend-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #1e40af;
+    }
+
+    .trend-change {
+      font-size: 0.85rem;
+      color: #10b981;
+      margin-top: 0.5rem;
+    }
+
+    /* Tab Styles */
+    .tab-container {
+      margin-bottom: 2rem;
+    }
+
+    .tab-buttons {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 2px solid #e0e0e0;
+      background: white;
+      padding: 1rem;
+      border-radius: 10px 10px 0 0;
+    }
+
+    .tab-btn {
+      padding: 10px 20px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      color: #666;
+      font-size: 0.95rem;
+      border-bottom: 3px solid transparent;
+      transition: all 0.3s ease;
+      margin-bottom: -1rem;
+      padding-bottom: 1.5rem;
+    }
+
+    .tab-btn:hover {
+      color: #1e40af;
+    }
+
+    .tab-btn.active {
+      color: #1e40af;
+      border-bottom-color: #1e40af;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Status Update Table Styles */
+    .update-controls {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 10px;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .update-controls label {
+      font-weight: 600;
+      color: #333;
+    }
+
+    .update-controls input,
+    .update-controls select {
+      padding: 10px 15px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 0.95rem;
+    }
+
+    .update-controls input:focus,
+    .update-controls select:focus {
+      outline: none;
+      border-color: #1e40af;
+      box-shadow: 0 0 0 3px rgba(30,64,175,0.1);
+    }
+
+    .bulk-status-table {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+
+    .bulk-status-table table {
+      width: 100%;
+    }
+
+    .bulk-status-table th {
+      background: #f0f0f0;
+      padding: 1rem;
+      text-align: left;
+      font-weight: 600;
+      color: #333;
+      border-bottom: 2px solid #e0e0e0;
+    }
+
+    .bulk-status-table td {
+      padding: 1rem;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .bulk-status-table tbody tr:hover {
+      background: #f9f9f9;
+    }
+
+    .status-update-select {
+      padding: 8px 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      min-width: 150px;
+    }
+
+    .status-update-select:hover {
+      border-color: #1e40af;
+    }
+
+    .btn-save-status {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+    }
+
+    .btn-save-status:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(16,182,129,0.3);
+    }
+
+    .btn-save-status:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* Feedback Card Styles */
+    .feedback-card {
+      background: white;
+      border-radius: 10px;
+      padding: 1.5rem;
+      border-left: 5px solid #f59e0b;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      transition: all 0.3s ease;
+    }
+
+    .feedback-card:hover {
+      box-shadow: 0 4px 15px rgba(0,0,0,0.12);
+      transform: translateY(-2px);
+    }
+
+    .feedback-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .feedback-card-title {
+      font-weight: 600;
+      color: #333;
+      font-size: 1rem;
+    }
+
+    .feedback-card-meta {
+      display: flex;
+      gap: 1rem;
+      font-size: 0.85rem;
+      color: #666;
+    }
+
+    .feedback-rating {
+      font-size: 1.2rem;
+      color: #fbbf24;
+      font-weight: 600;
+    }
+
+    .feedback-card-text {
+      color: #555;
+      line-height: 1.6;
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+    }
+
+    .feedback-card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+      color: #999;
+    }
+
+    .feedback-card-complaint-id {
+      background: #f0f0f0;
+      padding: 0.25rem 0.75rem;
+      border-radius: 5px;
+      font-family: monospace;
+      font-weight: 600;
+    }
+
+    @media (max-width: 768px) {
+      .page-header h1 {
+        font-size: 1.5rem;
+      }
+
+      .header-info {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .charts-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .month-selector {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .chart-container {
+        height: 300px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+      <a class="navbar-brand" href="/department-dashboard.html">🚆 Department Dashboard</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item">
+            <div class="language-selector">
+              <button class="lang-btn active" onclick="switchLanguage('en')">EN</button>
+              <button class="lang-btn" onclick="switchLanguage('hi')">HI</button>
+              <button class="lang-btn" onclick="switchLanguage('ta')">TA</button>
+            </div>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link navbar-logout" href="/login-register.html" onclick="logout()">Logout</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="container">
+      <h1 id="pageTitle">Department Complaint Analytics</h1>
+      <div class="header-info">
+        <span id="deptInfo">Department: <strong id="deptName">Administration</strong></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="container">
+    <!-- Month Selector -->
+    <div class="month-selector">
+      <label id="monthLabel">Select Month:</label>
+      <input type="month" id="monthSelect" onchange="updateDashboard()">
+      <button class="btn-action" onclick="resetToCurrentMonth()">Reset to Today</button>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="stats-grid">
+      <div class="stat-card pending">
+        <div class="stat-number pending" id="pendingCount">0</div>
+        <div class="stat-label" id="pendingLabel">Pending</div>
+      </div>
+      <div class="stat-card inprogress">
+        <div class="stat-number inprogress" id="inprogressCount">0</div>
+        <div class="stat-label" id="inprogressLabel">In Progress</div>
+      </div>
+      <div class="stat-card resolved">
+        <div class="stat-number resolved" id="resolvedCount">0</div>
+        <div class="stat-label" id="resolvedLabel">Resolved</div>
+      </div>
+      <div class="stat-card closed">
+        <div class="stat-number closed" id="closedCount">0</div>
+        <div class="stat-label" id="closedLabel">Closed</div>
+      </div>
+    </div>
+
+    <!-- Trend Cards -->
+    <div class="complaint-trend">
+      <div class="trend-card">
+        <div class="trend-title" id="trendTitle1">Total Complaints</div>
+        <div class="trend-value" id="totalComplaints">0</div>
+      </div>
+      <div class="trend-card">
+        <div class="trend-title" id="trendTitle2">Avg Resolution Time</div>
+        <div class="trend-value" id="avgResolutionTime">-</div>
+      </div>
+      <div class="trend-card">
+        <div class="trend-title" id="trendTitle3">Customer Satisfaction</div>
+        <div class="trend-value" id="satisfaction">-</div>
+      </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="charts-grid">
+      <div class="chart-container">
+        <h3 class="chart-title" id="chart1Title">Complaint Status Distribution</h3>
+        <canvas id="statusChart"></canvas>
+      </div>
+      <div class="chart-container" id="priorityChartContainer">
+        <h3 class="chart-title" id="chart2Title">Priority Distribution</h3>
+        <canvas id="priorityChart"></canvas>
+      </div>
+      <div class="chart-container">
+        <h3 class="chart-title" id="chart3Title">Daily Trend (Past 30 Days)</h3>
+        <canvas id="trendChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="tab-container">
+      <div class="tab-buttons" id="tabButtons">
+        <button class="tab-btn active" onclick="switchTab('analytics')" id="analyticsTabBtn">📊 Analytics</button>
+        <button class="tab-btn" onclick="switchTab('feedback')" id="feedbackTabBtn">⭐ Customer Feedback</button>
+        <button class="tab-btn" onclick="switchTab('zippy-app')" id="zippy-appTabBtn" style="display:none;"> Bag Detection</button>
+      </div>
+    </div>
+
+    <!-- Analytics Tab (Default) -->
+    <div id="analytics" class="tab-content active">
+      <!-- Department Comparison -->
+    <div class="card">
+      <div class="card-header">
+        <h2 id="comparisonTitle">Performance Metrics</h2>
+      </div>
+      <div class="card-body">
+        <div class="complaint-table">
+          <table id="metricsTable">
+            <thead>
+              <tr>
+                <th id="metricHeader">Metric</th>
+                <th id="valueHeader">Value</th>
+                <th id="targetHeader">Target</th>
+                <th id="statusMetricHeader">Status</th>
+              </tr>
+            </thead>
+            <tbody id="metricsBody">
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Complaints -->
+    <div class="card">
+      <div class="card-header">
+        <h2 id="recentTitle">Recent Complaints</h2>
+      </div>
+      <div class="card-body">
+        <div class="complaint-table">
+          <table id="complaintTable">
+            <thead>
+              <tr>
+                <th id="complaintIdHeader">ID</th>
+                <th id="passengerHeader">Passenger</th>
+                <th id="categoryHeader">Category</th>
+                <th id="submittedHeader">Submitted</th>
+                <th id="statusHeader">Status</th>
+                <th id="actionHeader">Action</th>
+              </tr>
+            </thead>
+            <tbody id="complaintBody">
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    </div> <!-- End of analytics tab -->
+
+    <!-- Feedback Tab -->
+    <div id="feedback" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <h2 id="feedbackTitle">Customer Feedback & Ratings</h2>
+        </div>
+        <div class="card-body">
+          <!-- Feedback Filter Controls -->
+          <div class="update-controls">
+            <label id="feedbackFilterRatingLabel">Filter by Rating:</label>
+            <select id="feedbackFilterRating" onchange="filterDepartmentFeedback()">
+              <option value="">-- All Ratings --</option>
+              <option value="5">⭐⭐⭐⭐⭐ (5 Stars)</option>
+              <option value="4">⭐⭐⭐⭐ (4 Stars)</option>
+              <option value="3">⭐⭐⭐ (3 Stars)</option>
+              <option value="2">⭐⭐ (2 Stars)</option>
+              <option value="1">⭐ (1 Star)</option>
+            </select>
+            
+            <label id="feedbackSortLabel" style="margin-left: 1rem;">Sort by:</label>
+            <select id="feedbackSort" onchange="filterDepartmentFeedback()">
+              <option value="recent">Most Recent</option>
+              <option value="oldest">Oldest First</option>
+              <option value="highest">Highest Rated</option>
+              <option value="lowest">Lowest Rated</option>
+            </select>
+
+            <button class="btn-action" onclick="resetFeedbackFilters()" style="margin-left: auto;">Reset Filters</button>
+            <button class="btn-action" onclick="loadDepartmentFeedback()" style="background: #3498db; margin-left: 0.5rem;" id="refreshFeedbackBtn" title="Refresh feedback data">🔄 Refresh</button>
+          </div>
+
+          <!-- Feedback Summary Stats -->
+          <div class="stats-grid" style="margin-bottom: 2rem;">
+            <div class="stat-card" style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);">
+              <div class="stat-number" id="totalFeedbackCount" style="color: white;">0</div>
+              <div class="stat-label" style="color: white;" id="totalFeedbackLabel">Total Feedback</div>
+            </div>
+            <div class="stat-card" style="background: linear-gradient(135deg, #34d399 0%, #10b981 100%);">
+              <div class="stat-number" id="avgRatingValue" style="color: white;">0.0</div>
+              <div class="stat-label" style="color: white;" id="avgRatingLabel">Average Rating</div>
+            </div>
+            <div class="stat-card" style="background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);">
+              <div class="stat-number" id="satisfactionRate" style="color: white;">0%</div>
+              <div class="stat-label" style="color: white;" id="satisfactionLabel">Satisfaction Rate</div>
+            </div>
+            <div class="stat-card" style="background: linear-gradient(135deg, #c084fc 0%, #a78bfa 100%);">
+              <div class="stat-number" id="feedbackPending" style="color: white;">0</div>
+              <div class="stat-label" style="color: white;" id="pendingFeedbackLabel">No Feedback Yet</div>
+            </div>
+          </div>
+
+          <!-- Feedback Cards Container -->
+          <div id="feedbackCardsContainer" style="display: grid; gap: 1.5rem;">
+          </div>
+
+          <!-- No Feedback Message -->
+          <div id="noFeedbackMessage" style="display: none; text-align: center; padding: 3rem; color: #999;">
+            <p style="font-size: 1.3rem; margin: 0;">📭 No feedback found for your department yet.</p>
+            <p style="font-size: 0.95rem; margin-top: 0.5rem;">Customers will see feedback options after their complaints are resolved.</p>
+          </div>
+        </div>
+      </div>
+    </div> <!-- End of feedback tab -->
+
+    <!-- Zippy App Tab -->
+    <div id="zippy-app" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <h2>🎯 Baggage Detection System</h2>
+        </div>
+        <div class="card-body" style="padding: 0; overflow: hidden; border-radius: 0 0 10px 10px;">
+          <iframe id="zippyAppFrame" src="http://127.0.0.1:5001" style="width: 100%; height: 800px; border: none; border-radius: 0 0 10px 10px;"></iframe>
+        </div>
+      </div>
+    </div> <!-- End of zippy app tab -->
+  </div>
+
+  <!-- Modal for Viewing Complaint Description -->
+  <div id="descriptionModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; padding: 20px;">
+    <div style="background: white; max-width: 700px; margin: 50px auto; padding: 30px; border-radius: 10px; max-height: 80vh; overflow-y: auto;">
+      <h2 id="descriptionTitle" style="margin-top: 0; color: #1e40af; margin-bottom: 20px;">Complaint Description</h2>
+      <div id="descriptionContent" style="background: #f9f9f9; padding: 20px; border-radius: 8px; border-left: 4px solid #1e40af; line-height: 1.6; color: #333; white-space: pre-wrap; word-wrap: break-word; font-size: 14px;"></div>
+      <div style="display: flex; gap: 10px; margin-top: 20px;">
+        <button onclick="closeDescriptionModal()" style="flex: 1; padding: 10px 20px; background: #1e40af; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600;">✕ Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal for Updating Complaint Status -->
+  <div id="statusModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; padding: 20px;">
+    <div style="background: white; max-width: 600px; margin: 50px auto; padding: 30px; border-radius: 10px;">
+      <h2 style="margin-top: 0; color: #1e40af;">Update Complaint Status</h2>
+      
+      <div style="margin: 20px 0;">
+        <label style="font-weight: 600; display: block; margin-bottom: 10px;">Complaint ID:</label>
+        <input type="text" id="modalComplaintId" readonly style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; background: #f9f9f9;">
+      </div>
+
+      <div style="margin: 20px 0;">
+        <label style="font-weight: 600; display: block; margin-bottom: 10px;">Category:</label>
+        <input type="text" id="modalCategory" readonly style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; background: #f9f9f9;">
+      </div>
+
+      <div style="margin: 20px 0;">
+        <label style="font-weight: 600; display: block; margin-bottom: 10px;">Current Status:</label>
+        <input type="text" id="modalCurrentStatus" readonly style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; background: #f9f9f9;">
+      </div>
+
+      <div style="margin: 20px 0;">
+        <label style="font-weight: 600; display: block; margin-bottom: 10px;">New Status:</label>
+        <select id="modalNewStatus" style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 5px; font-size: 14px; appearance: auto; -webkit-appearance: menulist; background-color: white; cursor: pointer; position: relative; z-index: 10001;">
+          <option value="">-- Select New Status --</option>
+          <option value="Processing">Processing</option>
+          <option value="Completed">Completed</option>
+        </select>
+      </div>
+
+      <div style="margin: 20px 0;">
+        <label style="font-weight: 600; display: block; margin-bottom: 10px;">Resolution Notes (Optional):</label>
+        <textarea id="modalResolution" placeholder="Enter resolution details..." style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 5px; font-size: 14px; height: 100px;"></textarea>
+      </div>
+
+      <div style="display: flex; gap: 10px; margin-top: 20px;">
+        <button onclick="updateComplaintStatus()" style="flex: 1; padding: 10px 20px; background: #2196F3; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600;">✓ Update Status</button>
+        <button onclick="closeStatusModal()" style="flex: 1; padding: 10px 20px; background: #666; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600;">✕ Cancel</button>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    // Sample data by department
+    const departmentData = {
+      Cleanliness: {
+        name: 'Cleanliness',
+        pending: 12,
+        inprogress: 8,
+        resolved: 42,
+        closed: 18,
+        total: 80,
+        avgResolutionTime: '3.2 days',
+        satisfaction: '75%',
+        categories: { 'Cleanliness': 80 },
+        dailyTrend: [2, 3, 1, 4, 2, 3, 5, 2, 4, 3, 2, 5, 3, 4, 2, 3, 4, 2, 3, 5, 2, 4, 3, 5, 2, 3, 4, 2, 3, 2],
+        complaints: [
+          { id: 'RWC0801', passenger: 'Rajesh Kumar', category: 'Cleanliness', submitted: '2024-01-18', status: 'Pending' },
+          { id: 'RWC0802', passenger: 'Priya Singh', category: 'Cleanliness', submitted: '2024-01-17', status: 'Processing' },
+          { id: 'RWC0803', passenger: 'Amit Patel', category: 'Cleanliness', submitted: '2024-01-16', status: 'Completed' },
+          { id: 'RWC0804', passenger: 'Neha Sharma', category: 'Cleanliness', submitted: '2024-01-15', status: 'Completed' },
+          { id: 'RWC0805', passenger: 'Vikram Verma', category: 'Cleanliness', submitted: '2024-01-14', status: 'Processing' }
+        ]
+      },
+      Delay: {
+        name: 'Delay',
+        pending: 15,
+        inprogress: 12,
+        resolved: 52,
+        closed: 25,
+        total: 104,
+        avgResolutionTime: '2.8 days',
+        satisfaction: '75%',
+        categories: { 'Delay': 104 },
+        dailyTrend: [3, 4, 2, 5, 3, 4, 6, 3, 5, 4, 3, 6, 4, 5, 3, 4, 5, 3, 4, 6, 3, 5, 4, 6, 3, 4, 5, 3, 4, 3],
+        complaints: [
+          { id: 'RWC0901', passenger: 'Suresh Gupta', category: 'Delay', submitted: '2024-01-18', status: 'Pending' },
+          { id: 'RWC0902', passenger: 'Divya Nair', category: 'Delay', submitted: '2024-01-17', status: 'Processing' },
+          { id: 'RWC0903', passenger: 'Rohan Rao', category: 'Delay', submitted: '2024-01-16', status: 'Completed' },
+          { id: 'RWC0904', passenger: 'Anjali Menon', category: 'Delay', submitted: '2024-01-15', status: 'Completed' },
+          { id: 'RWC0905', passenger: 'Karan Singh', category: 'Delay', submitted: '2024-01-14', status: 'Processing' }
+        ]
+      },
+      Food: {
+        name: 'Food',
+        pending: 18,
+        inprogress: 10,
+        resolved: 48,
+        closed: 24,
+        total: 100,
+        avgResolutionTime: '3.5 days',
+        satisfaction: '75%',
+        categories: { 'Food': 100 },
+        dailyTrend: [4, 3, 2, 5, 4, 3, 5, 4, 3, 5, 4, 3, 6, 3, 4, 5, 3, 4, 5, 3, 4, 6, 3, 5, 4, 3, 5, 4, 3, 4],
+        complaints: [
+          { id: 'RWC1001', passenger: 'Sneha Roy', category: 'Food', submitted: '2024-01-18', status: 'Pending' },
+          { id: 'RWC1002', passenger: 'Arun Kumar', category: 'Food', submitted: '2024-01-17', status: 'Processing' },
+          { id: 'RWC1003', passenger: 'Meera Bhat', category: 'Food', submitted: '2024-01-16', status: 'Completed' },
+          { id: 'RWC1004', passenger: 'Harish Patel', category: 'Food', submitted: '2024-01-15', status: 'Completed' },
+          { id: 'RWC1005', passenger: 'Priya Verma', category: 'Food', submitted: '2024-01-14', status: 'Processing' }
+        ]
+      },
+      Safety: {
+        name: 'Safety',
+        pending: 8,
+        inprogress: 6,
+        resolved: 35,
+        closed: 15,
+        total: 64,
+        avgResolutionTime: '45 minutes',
+        satisfaction: '75%',
+        categories: { 'Safety': 64 },
+        dailyTrend: [2, 2, 1, 3, 2, 2, 4, 2, 3, 2, 2, 4, 2, 3, 2, 2, 3, 2, 2, 4, 2, 3, 2, 4, 2, 2, 3, 2, 2, 2],
+        complaints: [
+          { id: 'RWC1101', passenger: 'Vivek Singh', category: 'Safety', submitted: '2024-01-18', status: 'Pending' },
+          { id: 'RWC1102', passenger: 'Geeta Desai', category: 'Safety', submitted: '2024-01-17', status: 'Processing' },
+          { id: 'RWC1103', passenger: 'Arjun Nair', category: 'Safety', submitted: '2024-01-16', status: 'Completed' },
+          { id: 'RWC1104', passenger: 'Anjana Pillai', category: 'Safety', submitted: '2024-01-15', status: 'Completed' },
+          { id: 'RWC1105', passenger: 'Nikhil Sharma', category: 'Safety', submitted: '2024-01-14', status: 'Processing' }
+        ]
+      },
+      Staff: {
+        name: 'Staff',
+        pending: 10,
+        inprogress: 9,
+        resolved: 45,
+        closed: 19,
+        total: 83,
+        avgResolutionTime: '3.1 days',
+        satisfaction: '75%',
+        categories: { 'Staff': 83 },
+        dailyTrend: [3, 2, 2, 4, 3, 2, 4, 3, 2, 4, 3, 2, 5, 3, 4, 3, 2, 4, 3, 2, 4, 3, 2, 5, 3, 2, 4, 3, 2, 3],
+        complaints: [
+          { id: 'RWC1201', passenger: 'Ramesh Iyer', category: 'Staff', submitted: '2024-01-18', status: 'Pending' },
+          { id: 'RWC1202', passenger: 'Lakshmi Devi', category: 'Staff', submitted: '2024-01-17', status: 'Processing' },
+          { id: 'RWC1203', passenger: 'Sunil Reddy', category: 'Staff', submitted: '2024-01-16', status: 'Completed' },
+          { id: 'RWC1204', passenger: 'Vimala Kapoor', category: 'Staff', submitted: '2024-01-15', status: 'Completed' },
+          { id: 'RWC1205', passenger: 'Jayant Kulkarni', category: 'Staff', submitted: '2024-01-14', status: 'Processing' }
+        ]
+      }
+    };
+
+    let currentDept = 'Cleanliness';
+    let charts = {};
+    let realDailyData = []; // Store real daily complaint data from database
+
+    window.addEventListener('load', function() {
+      let dept = localStorage.getItem('department') || 'Cleanliness';
+      
+      // Handle old department names mapping to new categories
+      const deptMapping = {
+        'administration': 'Cleanliness',
+        'operations': 'Delay',
+        'customer_care': 'Food',
+        'customer_service': 'Food',
+        'security': 'Safety',
+        'maintenance': 'Staff'
+      };
+      
+      // Use mapped department or the new category names directly
+      const finalDept = deptMapping[dept.toLowerCase()] || dept;
+      if (departmentData[finalDept]) {
+        currentDept = finalDept;
+      } else {
+        console.warn('Department not found:', finalDept, 'Available:', Object.keys(departmentData));
+        currentDept = finalDept; // Still set it, loadRealComplaints will initialize it
+      }
+      
+      document.getElementById('deptName').textContent = departmentData[currentDept] ? departmentData[currentDept].name : currentDept;
+      
+      // Hide/show tabs based on department
+      const feedbackBtn = document.getElementById('feedbackTabBtn');
+      const zippyBtn = document.getElementById('zippy-appTabBtn');
+      
+      if (currentDept === 'Lost/Theft') {
+        // For Lost/Theft department, hide feedback and show Zippy app
+        if (feedbackBtn) feedbackBtn.style.display = 'none';
+        if (zippyBtn) zippyBtn.style.display = 'inline-block';
+      } else {
+        // For other departments, show feedback and hide Zippy app
+        if (feedbackBtn) feedbackBtn.style.display = 'inline-block';
+        if (zippyBtn) zippyBtn.style.display = 'none';
+      }
+      
+      // Set current month
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = String(today.getMonth() + 1).padStart(2, '0');
+      document.getElementById('monthSelect').value = `${year}-${month}`;
+      
+      loadRealComplaints();
+    });
+
+    async function loadRealComplaints() {
+      try {
+        // Get the logged-in department
+        let departmentName = localStorage.getItem('department') || 'Cleanliness';
+        console.log('Loading complaints for department:', departmentName);
+        
+        // Map old department names to new category names if needed
+        const deptMapping = {
+          'administration': 'Cleanliness',
+          'operations': 'Delay',
+          'customer_care': 'Food',
+          'customer_service': 'Food',
+          'security': 'Safety',
+          'maintenance': 'Staff'
+        };
+        
+        // Use mapped department or the new category names directly
+        const mappedDept = deptMapping[departmentName.toLowerCase()] || departmentName;
+        
+        // Ensure we have a valid department in departmentData
+        if (!departmentData[mappedDept]) {
+          console.warn('Department not found in departmentData:', mappedDept, 'Available:', Object.keys(departmentData));
+          // Initialize with default structure if missing
+          departmentData[mappedDept] = {
+            name: mappedDept,
+            pending: 0,
+            inprogress: 0,
+            resolved: 0,
+            closed: 0,
+            total: 0,
+            avgResolutionTime: '-',
+            satisfaction: '-',
+            categories: {},
+            dailyTrend: [],
+            complaints: [],
+            priorities: {}
+          };
+        }
+        
+        // Use mappedDept as the key going forward
+        const dataKey = mappedDept;
+        
+        // Determine which endpoint to fetch from
+        let endpoint;
+        if (mappedDept === 'Lost/Theft') {
+          endpoint = `http://127.0.0.1:5000/api/theft-lost/all`;
+        } else {
+          endpoint = `http://127.0.0.1:5000/api/complaints/department/${encodeURIComponent(departmentName)}`;
+        }
+        
+        // Fetch complaints or theft/lost reports
+        const response = await fetch(endpoint);
+        const data = await response.json();
+        
+        // Handle both formats (complaints and reports)
+        let items = [];
+        if (mappedDept === 'Lost/Theft' && data.reports) {
+          items = data.reports;
+        } else if (data.complaints) {
+          items = data.complaints;
+        }
+        
+        if (data.success && items.length > 0) {
+          console.log('Loaded', items.length, 'items for', departmentName);
+          
+          // Initialize daily count for this department
+          const today = new Date();
+          const dailyByCategory = {};
+          for (let i = 29; i >= 0; i--) {
+            const date = new Date(today);
+            date.setDate(date.getDate() - i);
+            const dateStr = date.toISOString().split('T')[0];
+            dailyByCategory[dateStr] = 0;
+          }
+          
+          // Process items for current department
+          const processedItems = items.map(item => ({
+            id: item.complaint_id || item.report_id,
+            complaint_id: item.complaint_id || item.report_id,
+            passenger: item.user_email || item.email || 'N/A',
+            category: item.category || 'Lost/Theft',
+            submitted: new Date(item.created_at).toLocaleDateString(),
+            status: item.status || 'Registered',
+            priority: item.priority || 'High',
+            description: item.description || item.itemDescription || item.complaint_text || 'No description available',
+            details: {
+              fullName: item.fullName || 'N/A',
+              email: item.email || item.user_email || 'N/A',
+              phone: item.phone || 'N/A',
+              pnr: item.pnr || 'N/A',
+              created_at: item.created_at || 'N/A'
+            }
+          }));
+          
+          // Track daily count
+          items.forEach(item => {
+            if (item.created_at) {
+              const itemDate = new Date(item.created_at).toISOString().split('T')[0];
+              if (dailyByCategory.hasOwnProperty(itemDate)) {
+                dailyByCategory[itemDate]++;
+              }
+            }
+          });
+          
+          // Update departmentData for current department using mapped key
+          departmentData[dataKey].complaints = processedItems.slice(0, 5);
+          departmentData[dataKey].dailyTrend = Object.values(dailyByCategory);
+          
+          // Calculate stats for this department
+          departmentData[dataKey].total = processedItems.length;
+          departmentData[dataKey].pending = processedItems.filter(c => c.status.toLowerCase().includes('registered') || c.status.toLowerCase().includes('pending')).length;
+          departmentData[dataKey].inprogress = processedItems.filter(c => c.status.toLowerCase().includes('processing')).length;
+          departmentData[dataKey].resolved = processedItems.filter(c => c.status.toLowerCase().includes('completed')).length;
+          departmentData[dataKey].closed = 0;
+          
+          // Store priority distribution
+          const priorities = {};
+          processedItems.forEach(c => {
+            const p = c.priority || 'Medium';
+            priorities[p] = (priorities[p] || 0) + 1;
+          });
+          departmentData[dataKey].priorities = priorities;
+          
+          console.log('✓ Updated stats for', dataKey, ':', departmentData[dataKey]);
+        } else {
+          console.warn('No complaints found for department:', departmentName);
+        }
+      } catch (error) {
+        console.error('Error loading complaints:', error);
+      }
+      
+      updateDashboard();
+    }
+
+    function updateDashboard() {
+      const dept = currentDept;
+      const data = departmentData[dept];
+      
+      if (!data) {
+        console.error('No data found for department:', dept);
+        return;
+      }
+      
+      // Update stats
+      document.getElementById('pendingCount').textContent = data.pending;
+      document.getElementById('inprogressCount').textContent = data.inprogress;
+      document.getElementById('resolvedCount').textContent = data.resolved;
+      document.getElementById('closedCount').textContent = data.closed;
+      document.getElementById('totalComplaints').textContent = data.total;
+      document.getElementById('avgResolutionTime').textContent = data.avgResolutionTime;
+      document.getElementById('satisfaction').textContent = data.satisfaction;
+      
+      // Update metrics table
+      updateMetricsTable(data);
+      
+      // Update complaints table
+      updateComplaintsTable(data);
+      
+      // Create/update charts
+      createCharts(data);
+    }
+
+    function updateMetricsTable(data) {
+      const metricsBody = document.getElementById('metricsBody');
+      let resolutionTarget = '4 days';
+      if (data.name === 'Security') {
+        resolutionTarget = '1 hour';
+      }
+      
+      const metrics = [
+        { metric: 'Total Complaints', value: data.total, target: 90, status: data.total > 90 ? '⚠️ Above' : '✓ Within' },
+        { metric: 'Average Resolution Time', value: data.avgResolutionTime, target: resolutionTarget, status: '✓ On Track' },
+        { metric: 'Customer Satisfaction %', value: data.satisfaction, target: '85%', status: parseInt(data.satisfaction) > 85 ? '✓ Above Target' : '⚠️ Below' },
+        { metric: 'Closure Rate %', value: Math.round((data.closed/(data.total)) * 100) + '%', target: '20%', status: Math.round((data.closed/(data.total)) * 100) > 20 ? '✓ Above' : '⚠️ Below' }
+      ];
+
+      metricsBody.innerHTML = metrics.map(m => `
+        <tr>
+          <td><strong>${m.metric}</strong></td>
+          <td>${m.value}</td>
+          <td>${m.target}</td>
+          <td><span class="status-badge ${m.status.includes('✓') ? 'status-resolved' : 'status-pending'}">${m.status}</span></td>
+        </tr>
+      `).join('');
+    }
+
+    function updateComplaintsTable(data) {
+      const complaintBody = document.getElementById('complaintBody');
+      complaintBody.innerHTML = data.complaints.map(c => {
+        const statusClass = `status-${c.status.toLowerCase().replace(' ', '-')}`;
+        const complaintId = c.complaint_id || c.id;
+        return `
+          <tr>
+            <td><strong>${complaintId}</strong></td>
+            <td>${c.passenger}</td>
+            <td>${c.category}</td>
+            <td>${c.submitted}</td>
+            <td><span class="status-badge ${statusClass}">${c.status}</span></td>
+            <td>
+              <button class="btn-action" data-complaint-id="${complaintId}" data-description="${((c.description || 'No description').replace(/"/g, '&quot;'))}" onclick="showDescriptionModal(this.dataset.complaintId, this.dataset.description)">Description</button>
+              <button class="btn-action" onclick="viewComplaint('${complaintId}')" style="margin-left: 5px;">Change Status</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function createCharts(data) {
+      // Status Distribution Chart
+      const statusCtx = document.getElementById('statusChart').getContext('2d');
+      if (charts.status) charts.status.destroy();
+      charts.status = new Chart(statusCtx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Pending', 'Processing', 'Completed'],
+          datasets: [{
+            data: [data.pending, data.inprogress, data.resolved + data.closed],
+            backgroundColor: ['#f59e0b', '#3b82f6', '#10b981'],
+            borderColor: 'white',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom' }
+          }
+        }
+      });
+
+      // Priority Distribution Chart (hiding for Lost/Theft department)
+      const priorityChartContainer = document.getElementById('priorityChartContainer');
+      
+      if (currentDept === 'Lost/Theft') {
+        // Hide priority chart for Lost/Theft department
+        if (priorityChartContainer) priorityChartContainer.style.display = 'none';
+      } else {
+        // Show and create priority chart for other departments
+        if (priorityChartContainer) priorityChartContainer.style.display = 'block';
+        
+        const priorityCtx = document.getElementById('priorityChart').getContext('2d');
+        if (charts.priority) charts.priority.destroy();
+        const priorities = data.priorities || { 'High': 0, 'Medium': 0, 'Low': 0 };
+        charts.priority = new Chart(priorityCtx, {
+          type: 'bar',
+          data: {
+            labels: Object.keys(priorities),
+            datasets: [{
+              label: 'Complaints Count',
+              data: Object.values(priorities),
+              backgroundColor: ['#dc2626', '#f59e0b', '#10b981'],
+              borderRadius: 5
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+          }
+        });
+      }
+
+      // Trend Chart with real daily data for the selected category only
+      const today = new Date();
+      const last30Days = [];
+      for (let i = 29; i >= 0; i--) {
+        const date = new Date(today);
+        date.setDate(date.getDate() - i);
+        last30Days.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+      }
+      
+      const trendCtx = document.getElementById('trendChart').getContext('2d');
+      if (charts.trend) charts.trend.destroy();
+      const categoryDailyData = data.dailyTrend || Array(30).fill(0);
+      charts.trend = new Chart(trendCtx, {
+        type: 'line',
+        data: {
+          labels: last30Days,
+          datasets: [{
+            label: `Daily ${data.name} Complaints`,
+            data: categoryDailyData,
+            borderColor: '#1e40af',
+            backgroundColor: 'rgba(30,64,175,0.1)',
+            tension: 0.4,
+            fill: true,
+            pointBackgroundColor: '#1e40af',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'bottom' } },
+          scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+        }
+      });
+    }
+
+    function resetToCurrentMonth() {
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = String(today.getMonth() + 1).padStart(2, '0');
+      document.getElementById('monthSelect').value = `${year}-${month}`;
+      updateDashboard();
+    }
+
+    function viewComplaint(complaintId) {
+      // Fetch the full complaint details by ID - use correct endpoint based on department
+      console.log('Fetching complaint/report:', complaintId, 'Department:', currentDept);
+      
+      // Determine which endpoint to use based on current department
+      let endpoint;
+      if (currentDept === 'Lost/Theft') {
+        endpoint = `http://localhost:5000/api/theft-lost/${encodeURIComponent(complaintId)}`;
+      } else {
+        endpoint = `http://localhost:5000/api/complaints/${encodeURIComponent(complaintId)}`;
+      }
+      
+      console.log('Endpoint:', endpoint);
+      
+      fetch(endpoint)
+        .then(r => {
+          console.log('Response status:', r.status);
+          return r.json().then(data => ({ status: r.status, data: data }));
+        })
+        .then(({ status, data }) => {
+          console.log('Response data:', data);
+          
+          if (data.success && (data.complaint || data.report)) {
+            const complaint = data.complaint || data.report;
+            const finalComplaintId = complaint.complaint_id || complaint.report_id || complaint.id;
+            document.getElementById('modalComplaintId').value = finalComplaintId;
+            document.getElementById('modalCategory').value = complaint.category || 'Lost/Theft';
+            document.getElementById('modalCurrentStatus').value = complaint.status;
+            document.getElementById('modalNewStatus').value = '';
+            document.getElementById('modalResolution').value = complaint.resolution || '';
+            document.getElementById('statusModal').style.display = 'block';
+            document.getElementById('statusModal').complaintId = finalComplaintId;
+            document.getElementById('statusModal').department = currentDept; // Store department for status update
+            console.log('✓ Complaint loaded:', finalComplaintId);
+          } else {
+            console.error('Complaint not found. Success:', data.success, 'Has complaint:', !!data.complaint, 'Has report:', !!data.report);
+            alert('Complaint not found: ' + (data.error || data.message || 'Unknown error'));
+          }
+        })
+        .catch(err => {
+          console.error('Error fetching complaint:', err);
+          alert('Error loading complaint: ' + err.message);
+        });
+    }
+
+    function closeStatusModal() {
+      document.getElementById('statusModal').style.display = 'none';
+      document.getElementById('statusModal').complaintId = null;
+    }
+
+    function viewComplaintDescription(complaintId) {
+      // Fetch the full complaint details by ID
+      console.log('Fetching complaint/report for description:', complaintId, 'Department:', currentDept);
+      
+      // Determine which endpoint to use based on current department
+      let endpoint;
+      if (currentDept === 'Lost/Theft') {
+        endpoint = `http://localhost:5000/api/theft-lost/${encodeURIComponent(complaintId)}`;
+      } else {
+        endpoint = `http://localhost:5000/api/complaints/${encodeURIComponent(complaintId)}`;
+      }
+      
+      fetch(endpoint)
+        .then(r => {
+          console.log('Response status:', r.status);
+          return r.json().then(data => ({ status: r.status, data: data }));
+        })
+        .then(({ status, data }) => {
+          console.log('Response data:', data);
+          
+          if (data.success && (data.complaint || data.report)) {
+            const complaint = data.complaint || data.report;
+            const description = complaint.description || complaint.complaint_description || 'No description provided';
+            const category = complaint.category || 'Unknown';
+            const complaintId = complaint.complaint_id || complaint.report_id || complaint.id;
+            
+            // Create and show modal with description
+            let modal = document.getElementById('descriptionModal');
+            if (!modal) {
+              // Create modal if it doesn't exist
+              modal = document.createElement('div');
+              modal.id = 'descriptionModal';
+              modal.style.cssText = 'display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.4);';
+              modal.innerHTML = `
+                <div style="background-color: #fefefe; margin: 5% auto; padding: 20px; border: 1px solid #888; border-radius: 8px; width: 80%; max-width: 600px;">
+                  <span onclick="closeDescriptionModal()" style="color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
+                  <h2 id="descModalTitle" style="color: #1e40af; margin-bottom: 15px;">Complaint Description</h2>
+                  <div style="margin-bottom: 15px;">
+                    <strong style="color: #1e40af;">ID:</strong>
+                    <p id="descModalId" style="margin: 5px 0; padding: 8px; background: #f5f5f5; border-radius: 4px;"></p>
+                  </div>
+                  <div style="margin-bottom: 15px;">
+                    <strong style="color: #1e40af;">Category:</strong>
+                    <p id="descModalCategory" style="margin: 5px 0; padding: 8px; background: #f5f5f5; border-radius: 4px;"></p>
+                  </div>
+                  <div style="margin-bottom: 15px;">
+                    <strong style="color: #1e40af;">Description:</strong>
+                    <p id="descModalDescription" style="margin: 5px 0; padding: 12px; background: #f5f5f5; border-radius: 4px; line-height: 1.6; max-height: 300px; overflow-y: auto;"></p>
+                  </div>
+                  <button onclick="closeDescriptionModal()" style="background: #1e40af; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-size: 14px;">Close</button>
+                </div>
+              `;
+              document.body.appendChild(modal);
+            }
+            
+            // Populate modal with data
+            document.getElementById('descModalId').textContent = complaintId;
+            document.getElementById('descModalCategory').textContent = category;
+            document.getElementById('descModalDescription').textContent = description;
+            
+            // Show modal
+            modal.style.display = 'block';
+            
+            console.log('✓ Description loaded:', complaintId);
+          } else {
+            alert('Complaint not found: ' + (data.error || data.message || 'Unknown error'));
+          }
+        })
+        .catch(err => {
+          console.error('Error fetching complaint:', err);
+          alert('Error loading complaint: ' + err.message);
+        });
+    }
+
+    function closeDescriptionModal() {
+      const modal = document.getElementById('descriptionModal');
+      if (modal) {
+        modal.style.display = 'none';
+      }
+    }
+
+    function showDescriptionModal(complaintId, description) {
+      try {
+        console.log('Showing description for:', complaintId);
+        
+        // Find or create the modal
+        let modal = document.getElementById('descriptionModal');
+        if (!modal) {
+          console.warn('Description modal not found, creating new one');
+          modal = document.createElement('div');
+          modal.id = 'descriptionModal';
+          modal.style.cssText = 'display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; padding: 20px;';
+          modal.innerHTML = `
+            <div style="background: white; max-width: 700px; margin: 50px auto; padding: 30px; border-radius: 10px; max-height: 80vh; overflow-y: auto;">
+              <h2 id="descriptionTitle" style="margin-top: 0; color: #1e40af; margin-bottom: 20px;">Complaint Description</h2>
+              <div id="descriptionContent" style="background: #f9f9f9; padding: 20px; border-radius: 8px; border-left: 4px solid #1e40af; line-height: 1.6; color: #333; white-space: pre-wrap; word-wrap: break-word; font-size: 14px;"></div>
+              <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button onclick="closeDescriptionModal()" style="flex: 1; padding: 10px 20px; background: #1e40af; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600;">✕ Close</button>
+              </div>
+            </div>
+          `;
+          document.body.appendChild(modal);
+        }
+        
+        // Update the modal content
+        const titleElement = document.getElementById('descriptionTitle');
+        const contentElement = document.getElementById('descriptionContent');
+        
+        if (titleElement) {
+          titleElement.textContent = `Details for ${complaintId}`;
+        }
+        
+        if (contentElement) {
+          contentElement.textContent = description || 'No description available';
+        }
+        
+        // Decode HTML entities if needed
+        if (contentElement && contentElement.textContent.includes('&quot;')) {
+          contentElement.innerHTML = contentElement.textContent
+            .replace(/&quot;/g, '"')
+            .replace(/&amp;/g, '&')
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/&#x27;/g, "'");
+        }
+        
+        modal.style.display = 'block';
+        console.log('✓ Description modal opened successfully');
+      } catch (error) {
+        console.error('Error showing description modal:', error);
+        alert('Error opening description: ' + error.message);
+      }
+    }
+
+    function closeDescriptionModal() {
+      try {
+        const modal = document.getElementById('descriptionModal');
+        if (modal) {
+          modal.style.display = 'none';
+        }
+      } catch (error) {
+        console.error('Error closing modal:', error);
+      }
+    }
+
+    function updateComplaintStatus() {
+      const complaintId = document.getElementById('statusModal').complaintId;
+      const newStatus = document.getElementById('modalNewStatus').value;
+      const resolution = document.getElementById('modalResolution').value;
+      const department = document.getElementById('statusModal').department || currentDept;
+
+      if (!complaintId || !newStatus) {
+        alert('Please select a new status');
+        return;
+      }
+
+      // Use correct endpoint based on department
+      let endpoint;
+      if (department === 'Lost/Theft') {
+        endpoint = `http://localhost:5000/api/theft-lost/${complaintId}/status`;
+      } else {
+        endpoint = `http://localhost:5000/api/complaints/${complaintId}/status`;
+      }
+
+      fetch(endpoint, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          status: newStatus,
+          resolution: resolution
+        })
+      })
+        .then(r => r.json())
+        .then(data => {
+          if (data.success) {
+            alert('✅ Complaint status updated to: ' + newStatus);
+            closeStatusModal();
+            loadRealComplaints(); // Refresh the list
+          } else {
+            alert('❌ Error: ' + data.message);
+          }
+        })
+        .catch(err => {
+          console.error('Error updating status:', err);
+          alert('Error updating status: ' + err.message);
+        });
+    }
+
+    function loadDepartmentComplaints() {
+      const dept = localStorage.getItem('department') || 'General Complaints Division';
+      
+      fetch(`http://localhost:5000/api/complaints/department/${encodeURIComponent(dept)}`)
+        .then(r => r.json())
+        .then(data => {
+          if (data.success && data.complaints.length > 0) {
+            const tbody = document.getElementById('complaintBody');
+            tbody.innerHTML = '';
+            
+            // Show last 5 complaints
+            const recent = data.complaints.slice(0, 5);
+            
+            recent.forEach(complaint => {
+              const row = document.createElement('tr');
+              
+              // Get status badge class
+              let statusClass = 'status-pending';
+              if (complaint.status === 'Processing') statusClass = 'status-progress';
+              else if (complaint.status === 'Completed') statusClass = 'status-resolved';
+              
+              // Parse date
+              const date = new Date(complaint.created_at).toLocaleDateString();
+              
+              row.innerHTML = `
+                <td>${complaint.complaint_id}</td>
+                <td>${complaint.user_email}</td>
+                <td>${complaint.category}</td>
+                <td>${date}</td>
+                <td><span class="status-badge ${statusClass}">${complaint.status}</span></td>
+                <td>
+                  <button onclick="viewComplaintDescription('${complaint.complaint_id}')" style="background: #1e40af; color: white; border: none; padding: 6px 12px; border-radius: 3px; cursor: pointer; font-size: 12px; margin-right: 5px;">
+                    Description
+                  </button>
+                  <button onclick="viewComplaint('${complaint.complaint_id}')" style="background: #1e40af; color: white; border: none; padding: 6px 12px; border-radius: 3px; cursor: pointer; font-size: 12px;">
+                    Change Status
+                  </button>
+                </td>
+              `;
+              
+              tbody.appendChild(row);
+            });
+          }
+        })
+        .catch(err => console.error('Error loading complaints:', err));
+    }
+
+    function switchLanguage(lang) {
+      localStorage.setItem('language', lang);
+      document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+      updateLanguage();
+    }
+
+    function updateLanguage() {
+      const lang = localStorage.getItem('language') || 'en';
+      const translations = {
+        en: {
+          pageTitle: 'Department Complaint Analytics',
+          monthLabel: 'Select Month:',
+          pendingLabel: 'Pending',
+          inprogressLabel: 'Processing',
+          resolvedLabel: 'Resolved',
+          closedLabel: 'Closed',
+          trendTitle1: 'Total Complaints',
+          trendTitle2: 'Avg Resolution Time',
+          trendTitle3: 'Customer Satisfaction',
+          chart1Title: 'Complaint Status Distribution',
+          chart2Title: 'Priority Distribution',
+          chart3Title: 'Daily Trend (Past 30 Days)',
+          comparisonTitle: 'Performance Metrics',
+          recentTitle: 'Recent Complaints',
+          updateStatusTitle: 'Update Complaint Status',
+          filterStatusLabel: 'Filter by Status:',
+          filterCategoryLabel: 'Filter by Category:',
+          currentStatusHeader: 'Current Status',
+          newStatusHeader: 'Change Status To',
+          actionUpdateHeader: 'Action'
+        },
+        hi: {
+          pageTitle: 'विभाग शिकायत विश्लेषण',
+          monthLabel: 'महीना चुनें:',
+          pendingLabel: 'लंबित',
+          inprogressLabel: 'प्रसंस्करण',
+          resolvedLabel: 'समाधान किया गया',
+          closedLabel: 'बंद',
+          trendTitle1: 'कुल शिकायतें',
+          trendTitle2: 'औसत समाधान समय',
+          trendTitle3: 'ग्राहक संतुष्टि',
+          chart1Title: 'शिकायत स्थिति वितरण',
+          chart2Title: 'प्राथमिकता वितरण',
+          chart3Title: 'दैनिक प्रवृत्ति (पिछले 30 दिन)',
+          comparisonTitle: 'प्रदर्शन मेट्रिक्स',
+          recentTitle: 'हाल ही की शिकायतें',
+          updateStatusTitle: 'शिकायत स्थिति अपडेट करें',
+          filterStatusLabel: 'स्थिति के अनुसार फ़िल्टर करें:',
+          filterCategoryLabel: 'श्रेणी के अनुसार फ़िल्टर करें:',
+          currentStatusHeader: 'वर्तमान स्थिति',
+          newStatusHeader: 'स्थिति में परिवर्तन करें',
+          actionUpdateHeader: 'कार्रवाई'
+        },
+        ta: {
+          pageTitle: 'பிভாग புகார் பகுப்பாய்வு',
+          monthLabel: 'மாதத்தைத் தேர்ந்தெடுக்கவும்:',
+          pendingLabel: 'பிரவி',
+          inprogressLabel: 'முன்னேற்றத்தில்',
+          resolvedLabel: 'தீர்க்கப்பட்டது',
+          closedLabel: 'மூடப்பட்ட',
+          trendTitle1: 'மொத்த புகார்கள்',
+          trendTitle2: 'சராசரி தீர்வு நேரம்',
+          trendTitle3: 'வாடிக்கையாளர் திருப்தி',
+          chart1Title: 'புகார் நிலை விநியோகம்',
+          chart2Title: 'முன்னுரிமை விநியோகம்',
+          chart3Title: 'தினசரி போக்கு (கடந்த 30 நாட்கள்)',
+          comparisonTitle: 'செயல்திறன் மெட்ரிக்குகள்',
+          recentTitle: 'சமீபத்திய புகார்கள்',
+          updateStatusTitle: 'புகார் நிலையை அப்டேட் செய்யவும்',
+          filterStatusLabel: 'நிலை மூலம் வடிகட்டவும்:',
+          filterCategoryLabel: 'வகை மூலம் வடிகட்டவும்:',
+          currentStatusHeader: 'தற்போதைய நிலை',
+          newStatusHeader: 'நிலை வசதிக்கு மாற்றவும்',
+          actionUpdateHeader: 'நடவடிக்கை'
+        }
+      };
+
+      const langData = translations[lang] || translations.en;
+      Object.keys(langData).forEach(key => {
+        const element = document.getElementById(key);
+        if (element) element.textContent = langData[key];
+      });
+    }
+
+    function logout() {
+      localStorage.clear();
+    }
+
+    // Initialize notifications for department
+    function initializeNotifications() {
+      if (typeof notificationManager === 'undefined') {
+        console.warn('⚠️ NotificationManager not loaded yet, will retry...');
+        setTimeout(initializeNotifications, 500);
+        return;
+      }
+      const department = localStorage.getItem('department') || 'General Complaints Division';
+      console.log('🔔 Initializing notifications for department:', department);
+      notificationManager.setDepartment(department);
+      // System will start polling automatically every 2 seconds
+      console.log('✓ Polling started - checks every 2 seconds for new complaints');
+    }
+
+    // Tab Management Functions
+    function switchTab(tabName) {
+      // Hide all tabs
+      const tabs = document.querySelectorAll('.tab-content');
+      tabs.forEach(tab => tab.classList.remove('active'));
+      
+      // Remove active class from all buttons
+      const buttons = document.querySelectorAll('.tab-btn');
+      buttons.forEach(btn => btn.classList.remove('active'));
+      
+      // Show selected tab
+      const selectedTab = document.getElementById(tabName);
+      if (selectedTab) {
+        selectedTab.classList.add('active');
+      }
+      
+      // Mark button as active
+      const selectedBtn = document.getElementById(tabName + 'TabBtn');
+      if (selectedBtn) {
+        selectedBtn.classList.add('active');
+      }
+
+      // If switching to manage-status tab, load all complaints
+      if (tabName === 'manage-status') {
+        loadComplaintsForUpdate();
+      }
+
+      // If switching to feedback tab, load department feedback
+      if (tabName === 'feedback') {
+        loadDepartmentFeedback();
+      }
+    }
+
+    // Load all complaints for status update
+    let allComplaints = [];
+
+    function loadComplaintsForUpdate() {
+      fetch('http://127.0.0.1:5000/api/complaints/all')
+        .then(r => r.json())
+        .then(data => {
+          if (data.success && data.complaints) {
+            allComplaints = data.complaints;
+            displayComplaintsForUpdate(allComplaints);
+          }
+        })
+        .catch(err => console.error('Error loading complaints:', err));
+    }
+
+    function displayComplaintsForUpdate(complaints) {
+      const tbody = document.getElementById('statusUpdateBody');
+      const noDataMsg = document.getElementById('noDataMessage');
+
+      if (!complaints || complaints.length === 0) {
+        tbody.innerHTML = '';
+        noDataMsg.style.display = 'block';
+        return;
+      }
+
+      noDataMsg.style.display = 'none';
+      tbody.innerHTML = complaints.map(complaint => {
+        const complaintId = complaint.complaint_id || complaint.id;
+        const date = new Date(complaint.created_at).toLocaleDateString();
+        const currentStatus = complaint.status || 'Registered';
+        
+        return `
+          <tr>
+            <td><strong>${complaintId}</strong></td>
+            <td>${complaint.user_email || 'N/A'}</td>
+            <td>${complaint.category || 'N/A'}</td>
+            <td>${date}</td>
+            <td><span class="status-badge status-${currentStatus.toLowerCase().replace(' ', '-')}">${currentStatus}</span></td>
+            <td>
+              <select class="status-update-select" id="select-${complaintId}" onchange="checkStatusChange('${complaintId}')">
+                <option value="">-- No Change --</option>
+                ${currentStatus !== 'Processing' ? '<option value="Processing">Processing</option>' : ''}
+                ${currentStatus !== 'Completed' ? '<option value="Completed">Completed</option>' : ''}
+              </select>
+            </td>
+            <td>
+              <button class="btn-save-status" id="btn-${complaintId}" onclick="updateSingleComplaintStatus('${complaintId}')" disabled>Save</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function checkStatusChange(complaintId) {
+      const selectElement = document.getElementById(`select-${complaintId}`);
+      const button = document.getElementById(`btn-${complaintId}`);
+      
+      if (selectElement.value) {
+        button.disabled = false;
+      } else {
+        button.disabled = true;
+      }
+    }
+
+    function updateSingleComplaintStatus(complaintId) {
+      const selectElement = document.getElementById(`select-${complaintId}`);
+      const newStatus = selectElement.value;
+      const button = document.getElementById(`btn-${complaintId}`);
+
+      if (!newStatus) {
+        alert('Please select a new status');
+        return;
+      }
+
+      button.disabled = true;
+      button.textContent = 'Updating...';
+
+      fetch(`http://localhost:5000/api/complaints/${complaintId}/status`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          status: newStatus,
+          resolution: '' 
+        })
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          alert(`✅ Complaint ${complaintId} status updated to ${newStatus}`);
+          loadComplaintsForUpdate(); // Reload the list
+          loadDepartmentComplaints(); // Refresh analytics
+        } else {
+          alert('❌ Error: ' + data.message);
+          button.disabled = false;
+          button.textContent = 'Save';
+        }
+      })
+      .catch(err => {
+        console.error('Error updating status:', err);
+        alert('Error updating status: ' + err.message);
+        button.disabled = false;
+        button.textContent = 'Save';
+      });
+    }
+
+    function filterComplaintsForUpdate() {
+      const filterStatus = document.getElementById('filterStatus').value;
+      const filterCategory = document.getElementById('filterCategory').value;
+
+      const filtered = allComplaints.filter(complaint => {
+        const matchStatus = !filterStatus || complaint.status === filterStatus;
+        const matchCategory = !filterCategory || complaint.category === filterCategory;
+        return matchStatus && matchCategory;
+      });
+
+      displayComplaintsForUpdate(filtered);
+    }
+
+    function resetFilters() {
+      document.getElementById('filterStatus').value = '';
+      document.getElementById('filterCategory').value = '';
+      displayComplaintsForUpdate(allComplaints);
+    }
+
+    // Initialize
+    updateLanguage();
+    loadDepartmentComplaints(); // Load real complaints from API
+    loadDepartmentFeedback(); // Load feedback data on page load
+    
+    // Wait for DOM to be ready before initializing notifications
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initializeNotifications);
+    } else {
+      initializeNotifications();
+    }
+
+    // ========== FEEDBACK FUNCTIONS ==========
+    let allDepartmentFeedback = [];
+
+    // Load feedback for department
+    function loadDepartmentFeedback() {
+      const departmentName = localStorage.getItem('department') || 'Administration';
+      
+      console.log('📊 Loading feedback for department:', departmentName);
+      console.log('localStorage.department:', localStorage.getItem('department'));
+      console.log('API URL:', `http://localhost:5000/api/complaints/department/${encodeURIComponent(departmentName)}`);
+      
+      // Show loading state
+      const refreshBtn = document.getElementById('refreshFeedbackBtn');
+      if (refreshBtn) {
+        refreshBtn.textContent = '⏳ Loading...';
+        refreshBtn.disabled = true;
+      }
+      
+      // Get all complaints for this department
+      fetch(`http://localhost:5000/api/complaints/department/${encodeURIComponent(departmentName)}`)
+        .then(res => res.json())
+        .then(data => {
+          console.log('API Response received:', data);
+          
+          if (data.success && data.complaints) {
+            // Filter complaints that have feedback
+            const feedbackItems = data.complaints
+              .filter(complaint => complaint.feedback)
+              .map(complaint => ({
+                complaint_id: complaint.complaint_id,
+                user_email: complaint.user_email,
+                rating: complaint.feedback.rating,
+                feedback: complaint.feedback.feedback,
+                submitted_at: complaint.feedback.feedback_submitted_at,
+                status: complaint.status,
+                category: complaint.category,
+                pnr: complaint.pnr
+              }));
+            
+            console.log(`✓ Found ${feedbackItems.length} feedback items`);
+            allDepartmentFeedback = feedbackItems;
+            displayFeedbackStats(feedbackItems, data.complaints);
+            displayFeedbackCards(feedbackItems);
+          } else {
+            console.log('No feedback data received');
+            allDepartmentFeedback = [];
+            displayEmptyFeedback();
+          }
+        })
+        .catch(err => {
+          console.error('❌ Error loading feedback:', err);
+          displayEmptyFeedback();
+        })
+        .finally(() => {
+          // Restore button state
+          if (refreshBtn) {
+            refreshBtn.textContent = '🔄 Refresh';
+            refreshBtn.disabled = false;
+          }
+        });
+    }
+
+    // Display feedback statistics
+    function displayFeedbackStats(feedbackItems, allComplaints) {
+      const totalCount = feedbackItems.length;
+      const avgRating = totalCount > 0 
+        ? (feedbackItems.reduce((sum, item) => sum + item.rating, 0) / totalCount).toFixed(1)
+        : '0.0';
+      
+      // Count only 5-star ratings as satisfied
+      const satisfiedCount = feedbackItems.filter(item => item.rating === 5).length;
+      const satisfactionRate = totalCount > 0 
+        ? Math.round((satisfiedCount / totalCount) * 100)
+        : 0;
+      
+      // Count completed complaints without feedback
+      const completedWithoutFeedback = allComplaints 
+        ? allComplaints.filter(c => c.status === 'Completed' && !c.feedback).length 
+        : 0;
+      
+      console.log(`📈 Statistics: Total=${totalCount}, Avg=${avgRating}, Satisfaction=${satisfactionRate}%`);
+      console.log(`⏳ Pending feedback: ${completedWithoutFeedback} completed complaints without feedback`);
+      
+      // Update DOM with stats
+      const totalEl = document.getElementById('totalFeedbackCount');
+      const avgEl = document.getElementById('avgRatingValue');
+      const satEl = document.getElementById('satisfactionRate');
+      const pendEl = document.getElementById('feedbackPending');
+      
+      if (totalEl) {
+        totalEl.textContent = totalCount;
+        console.log('✓ Updated totalFeedbackCount:', totalCount);
+      }
+      if (avgEl) {
+        avgEl.textContent = avgRating;
+        console.log('✓ Updated avgRatingValue:', avgRating);
+      }
+      if (satEl) {
+        satEl.textContent = satisfactionRate + '%';
+        console.log('✓ Updated satisfactionRate:', satisfactionRate + '%');
+      }
+      if (pendEl) {
+        pendEl.textContent = completedWithoutFeedback;
+        console.log('✓ Updated feedbackPending:', completedWithoutFeedback);
+      }
+      
+      console.log('✓ All statistics updated in UI');
+    }
+
+    // Display feedback cards
+    function displayFeedbackCards(feedbackItems) {
+      const container = document.getElementById('feedbackCardsContainer');
+      const noMessage = document.getElementById('noFeedbackMessage');
+      
+      if (feedbackItems.length === 0) {
+        container.innerHTML = '';
+        noMessage.style.display = 'block';
+        return;
+      }
+      
+      noMessage.style.display = 'none';
+      container.innerHTML = feedbackItems.map(item => `
+        <div class="feedback-card">
+          <div class="feedback-card-header">
+            <div>
+              <div class="feedback-card-title">Complaint ID: ${item.complaint_id}</div>
+              <div class="feedback-card-meta">
+                <span>PNR: ${item.pnr || 'N/A'}</span>
+                <span>Category: ${item.category}</span>
+                <span>Status: ${item.status}</span>
+              </div>
+            </div>
+            <div class="feedback-rating">
+              ${'⭐'.repeat(item.rating)}
+            </div>
+          </div>
+          <div class="feedback-card-text">
+            ${item.feedback ? item.feedback : '<em>No feedback text provided</em>'}
+          </div>
+          <div class="feedback-card-footer">
+            <span class="feedback-card-complaint-id">${new Date(item.submitted_at).toLocaleDateString()}</span>
+            <span>${item.user_email}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Filter and sort feedback
+    function filterDepartmentFeedback() {
+      const ratingFilter = document.getElementById('feedbackFilterRating').value;
+      const sortBy = document.getElementById('feedbackSort').value;
+      
+      let filtered = [...allDepartmentFeedback];
+      
+      // Filter by rating
+      if (ratingFilter) {
+        filtered = filtered.filter(item => item.rating == parseInt(ratingFilter));
+      }
+      
+      // Sort
+      if (sortBy === 'recent') {
+        filtered.sort((a, b) => new Date(b.submitted_at) - new Date(a.submitted_at));
+      } else if (sortBy === 'oldest') {
+        filtered.sort((a, b) => new Date(a.submitted_at) - new Date(b.submitted_at));
+      } else if (sortBy === 'highest') {
+        filtered.sort((a, b) => b.rating - a.rating);
+      } else if (sortBy === 'lowest') {
+        filtered.sort((a, b) => a.rating - b.rating);
+      }
+      
+      displayFeedbackCards(filtered);
+    }
+
+    // Reset feedback filters
+    function resetFeedbackFilters() {
+      document.getElementById('feedbackFilterRating').value = '';
+      document.getElementById('feedbackSort').value = 'recent';
+      displayFeedbackCards(allDepartmentFeedback);
+    }
+
+    // Display empty feedback message
+    function displayEmptyFeedback() {
+      document.getElementById('feedbackCardsContainer').innerHTML = '';
+      document.getElementById('noFeedbackMessage').style.display = 'block';
+      document.getElementById('totalFeedbackCount').textContent = '0';
+      document.getElementById('avgRatingValue').textContent = '0.0';
+      document.getElementById('satisfactionRate').textContent = '0%';
+      document.getElementById('feedbackPending').textContent = '0';
+    }
+
+    // Auto-refresh feedback when page becomes visible (user returns from another tab/page)
+    document.addEventListener('visibilitychange', function() {
+      if (!document.hidden) {
+        const feedbackTab = document.getElementById('feedback');
+        if (feedbackTab && feedbackTab.classList.contains('active')) {
+          console.log('Page became visible, refreshing feedback stats...');
+          loadDepartmentFeedback();
+        }
+      }
+    });
+  </script>
+  
+  <!-- Load notifications manager LAST to ensure DOM is ready -->
+  <script src="/js/notifications.js" defer></script>
+</body>
+</html>

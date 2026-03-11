@@ -1,0 +1,305 @@
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/api/detect-bags', methods=['POST'])
+def detect_bags():
+    """Detect bags in the first frame of uploaded video"""
+    try:
+        if 'video' not in request.files:
+            return jsonify({'error': 'No video file provided'}), 400
+        
+        file = request.files['video']
+        if file.filename == '':
+            return jsonify({'error': 'No file selected'}), 400
+        
+        if not allowed_file(file.filename):
+            return jsonify({'error': 'Invalid file type. Allowed: mp4, avi, mov, mkv'}), 400
+        
+        # Load model if not already loaded
+        if model is None:
+            if not load_model():
+                return jsonify({'error': 'Could not load YOLO model'}), 500
+        
+        # Save uploaded file
+        filename = secure_filename(file.filename)
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S_')
+        filepath = UPLOAD_FOLDER / (timestamp + filename)
+        file.save(str(filepath))
+        
+        # Extract first frame and detect bags
+        cap = cv2.VideoCapture(str(filepath))
+        ret, first_frame = cap.read()
+        
+        if not ret:
+            return jsonify({'error': 'Could not read video file'}), 400
+        
+        # Get video properties
+        fps = cap.get(cv2.CAP_PROP_FPS)
+        width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        duration = total_frames / fps if fps > 0 else 0
+        
+        cap.release()
+        
+        # Run YOLO detection
+        results = model(first_frame, verbose=False, conf=0.5)
+        
+        # Parse detections
+        detections = []
+        for result in results:
+            for box in result.boxes:
+                class_id = int(box.cls[0])
+                confidence = float(box.conf[0])
+                x1, y1, x2, y2 = map(int, box.xyxy[0])
+                
+                detection = {
+                    'class': model.names[class_id],
+                    'class_id': class_id,
+                    'confidence': confidence,
+                    'bbox': (x1, y1, x2, y2),
+                    'center': ((x1 + x2) // 2, (y1 + y2) // 2),
+                    'width': x2 - x1,
+                    'height': y2 - y1,
+                    'area': (x2 - x1) * (y2 - y1)
+                }
+                detections.append(detection)
+        
+        # Filter only bags
+        bags = [d for d in detections if d['class'] == 'Bag']
+        persons = [d for d in detections if d['class'] == 'Person']
+        
+        # Save cropped images of each detected bag
+        bag_images = []
+        for idx, bag in enumerate(bags):
+            x1, y1, x2, y2 = bag['bbox']
+            # Add some padding
+            padding = 10
+            x1 = max(0, x1 - padding)
+            y1 = max(0, y1 - padding)
+            x2 = min(width, x2 + padding)
+            y2 = min(height, y2 + padding)
+            
+            # Crop the bag region
+            cropped_bag = first_frame[y1:y2, x1:x2]
+            
+            # Save cropped image
+            bag_img_filename = f"{timestamp}bag_{idx}.jpg"
+            bag_img_path = OUTPUT_FOLDER / bag_img_filename
+            cv2.imwrite(str(bag_img_path), cropped_bag)
+            
+            # Store relative path for frontend
+            bag_images.append(f"outputs/{bag_img_filename}")
+        
+        # Add image paths to bag data
+        for idx, bag in enumerate(bags):
+            bag['image_path'] = bag_images[idx]
+        
+        return jsonify({
+            'success': True,
+            'video_path': str(filepath),
+            'video_info': {
+                'fps': fps,
+                'width': width,
+                'height': height,
+                'total_frames': total_frames,
+                'duration': duration
+            },
+            'bags': bags,
+            'persons': len(persons),
+            'total_detections': len(detections)
+        })
+    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/track-bag', methods=['POST'])
+def track_bag():
+    """Track selected bag throughout entire video"""
+    try:
+        data = request.json
+        video_path = data.get('video_path')
+        bag_index = data.get('bag_index')
+        
+        if not video_path or bag_index is None:
+            return jsonify({'error': 'Missing video_path or bag_index'}), 400
+        
+        if not Path(video_path).exists():
+            return jsonify({'error': 'Video file not found'}), 400
+        
+        if model is None:
+            if not load_model():
+                return jsonify({'error': 'Could not load YOLO model'}), 500
+        
+        # Load video
+        cap = cv2.VideoCapture(video_path)
+        fps = cap.get(cv2.CAP_PROP_FPS)
+        width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        
+        # Read first frame to get bag
+        ret, first_frame = cap.read()
+        if not ret:
+            return jsonify({'error': 'Could not read first frame'}), 400
+        
+        # Detect bags in first frame
+        results = model(first_frame, verbose=False, conf=0.5)
+        
+        bags = []
+        for result in results:
+            for box in result.boxes:
+                class_id = int(box.cls[0])
+                if model.names[class_id] == 'Bag':
+                    confidence = float(box.conf[0])
+                    x1, y1, x2, y2 = map(int, box.xyxy[0])
+                    bags.append({
+                        'bbox': (x1, y1, x2, y2),
+                        'center': ((x1 + x2) // 2, (y1 + y2) // 2),
+                        'confidence': confidence
+                    })
+        
+        if bag_index >= len(bags):
+            return jsonify({'error': f'Bag index {bag_index} not found'}), 400
+        
+        # Initialize tracker
+        initial_bbox = bags[bag_index]['bbox']
+        tracker = BagTracker(initial_bbox, distance_threshold=50)
+        
+        # Reset video
+        cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+        
+        # Define output path
+        input_path = Path(video_path)
+        output_filename = f"tracked_{input_path.stem}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.mp4"
+        output_path = OUTPUT_FOLDER / output_filename
+        
+        # Setup video writer
+        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+        out = cv2.VideoWriter(str(output_path), fourcc, fps, (width, height))
+        
+        frame_count = 0
+        processed_frames = 0
+        
+        # Process each frame
+        while frame_count < total_frames:
+            ret, frame = cap.read()
+            if not ret:
+                break
+            
+            frame_count += 1
+            
+            # Detect bags in current frame
+            results = model(frame, verbose=False, conf=0.5)
+            
+            # Parse detections
+            frame_detections = []
+            for result in results:
+                for box in result.boxes:
+                    class_id = int(box.cls[0])
+                    if model.names[class_id] == 'Bag':
+                        confidence = float(box.conf[0])
+                        x1, y1, x2, y2 = map(int, box.xyxy[0])
+                        detection = {
+                            'confidence': confidence,
+                            'bbox': (x1, y1, x2, y2),
+                            'center': ((x1 + x2) // 2, (y1 + y2) // 2)
+                        }
+                        frame_detections.append(detection)
+            
+            # Update tracker
+            tracker.update(frame_detections)
+            
+            # Draw on frame
+            frame_output = tracker.draw_on_frame(frame, frame_detections)
+            
+            # Write to output video
+            out.write(frame_output)
+            processed_frames += 1
+        
+        # Cleanup
+        cap.release()
+        out.release()
+        
+        return jsonify({
+            'success': True,
+            'output_video': url_for('download_file', filename=output_filename),
+            'stats': {
+                'total_frames': processed_frames,
+                'lost_frames': tracker.lost_frames,
+                'reliability': ((processed_frames - tracker.lost_frames) / processed_frames * 100) if processed_frames > 0 else 0,
+                'tracking_points': len(tracker.track_history)
+            }
+        })
+    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/summarizer')
+def summarizer():
+    return render_template('summarizer.html')
+
+@app.route('/api/summarize-video', methods=['POST'])
+def summarize_video():
+    """Summarize tracked video contents using OpenAI LLM"""
+    try:
+        data = request.json
+        video_path = data.get('video_path')
+        
+        if not video_path:
+            return jsonify({'error': 'No video path provided'}), 400
+        
+        # Convert URL path to file system path
+        # video_path comes as /download/filename, extract filename
+        if video_path.startswith('/download/'):
+            filename = video_path.replace('/download/', '')
+            filepath = OUTPUT_FOLDER / filename
+        else:
+            # Handle direct file path
+            filepath = Path(video_path)
+        
+        if not filepath.exists():
+            return jsonify({'error': 'Video file not found'}), 400
+        
+        # Extract video analysis
+        analysis_data = extract_video_analysis(str(filepath))
+        if not analysis_data:
+            return jsonify({'error': 'Could not analyze video'}), 400
+        
+        # Generate summary using OpenAI
+        summary, error = generate_openai_summary(analysis_data)
+        if error:
+            return jsonify({'error': f'OpenAI error: {error}'}), 500
+        
+        return jsonify({
+            'success': True,
+            'summary': summary,
+            'analysis': {
+                'duration': analysis_data['duration'],
+                'fps': analysis_data['fps'],
+                'total_frames': analysis_data['total_frames'],
+                'trajectory_points': analysis_data['trajectory_points'],
+                'total_distance': analysis_data['total_distance'],
+                'movement_pattern': analysis_data['movement_type']
+            }
+        })
+    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/download/<filename>')
+def download_file(filename):
+    """Download tracked video"""
+    try:
+        filepath = OUTPUT_FOLDER / secure_filename(filename)
+        if filepath.exists():
+            return send_file(str(filepath), as_attachment=True)
+        return jsonify({'error': 'File not found'}), 404
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+if __name__ == '__main__':
+    load_model()
+    app.run(debug=True, host='127.0.0.1', port=5000)
